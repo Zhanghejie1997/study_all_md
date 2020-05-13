@@ -1,6 +1,8 @@
 # git学习
 
-[可视化在线学习网站](https://learngitbranching.js.org/?locale=zh_CN)
+[可视化在线学习网站](https:#learngitbranching.js.org/?locale=zh_CN)
+
+[详细参考](http://www.hechaku.com/git/git_addmingling.html)
 
 # 理论
 
@@ -17,7 +19,7 @@
 
 ​	**分支**（指向节点的一个指针，可以修改，本地分支）（后续称为:branchName）
 
-​	**分支**（指向节点的一个指针，只读，服务器的，更新时候会自动指向它对应绑定的本地指针所指向的节点）（后续称为:branchOriginName）
+​	**分支**（指向节点的一个指针，只读，服务器的，更新时候会自动指向它对应绑定的本地指针所指向的节点，名字都带有origin/分支名）（后续称为:branchOriginName）
 
 ​	**锚点**（固定一个节点别名，类似于大版本）。（后续称为:TagName）
 
@@ -33,9 +35,19 @@
 
 ## 使用模式：
 
-一种是命令模式
+### git中vi有两种工作模式
 
-一种是vi模式
+一种是命令模式：
+接受、执行vi操作命令的模式，打开文件后默认模式
+
+​	命令：
+
+​			 `ZZ`或者`:wq`保存退出`vi`,只保存文件就`:q`。
+
+​			`:q!`放弃并退出，`:e!`放弃并回复初始化重新编辑。
+
+一种是编辑模式：
+对文件内容的增删查改操作的模式，按下`esc`键，退到命令模式。
 
 ### 流程（简单）
 
@@ -45,19 +57,20 @@
 4. 第四步提交本地：把修改和新建内容提交到本地库中(git  commit  -m  '注释') ，新生成节点，且把分支指针指向最新这个节点。
 5. 第五步更新分支：确保是最新，先备份，再拉取，(git pull origin 分支)，解决冲突
 6. 第六步提交到远程仓库：由于解决了更新分支问题，直接提交(git  push  origin 分支)
+7. 第七步提交到远程仓库：就会把隐式绑定的origin/分支指针更新到对应最新位置。
 
 ## 流程图
 
 | 工作区（展示当前分支内容） |                              | 暂存区 |                              | 本地仓库 |                                                     | 远程仓库 |
 | :------------------------: | :--------------------------: | :----: | :--------------------------: | :------: | :-------------------------------------------------: | :------: |
-|                            |              =>              |  \|\|  |              =>              |   \|\|   |                         =>                          |   \|\|   |
-|                            | git  add  .   //添加到暂存区 |        | git  commit //添加到本地仓库 |          | git push origin   branchName //远程仓库添更新到分支 |          |
-|            \|\|            |              <=              |  \|\|  |              <=              |   \|\|   |                         <=                          |          |
-|                            |        git reset HEAD        |        | git  reset  --scfl   版本号  |          |   git  freth origin branchName  //更新到本地仓库    |          |
-|            \|\|            |              <=              |   <=   |              <=              |          |                                                     |          |
+|                            |              =>              |  |              =>              |      |                         =>                          |      |
+|                            | git  add  .   #添加到暂存区 |        | git  commit #添加到本地仓库 |          | git push origin   branchName #远程仓库添更新到分支 |          |
+|                        |              <=              |    |              <=              |      |                         <=                          |          |
+|                            |        git reset HEAD        |        | git  reset  --scfl   版本号  |          |   git  freth origin branchName  #更新到本地仓库    |          |
+|                        |              <=              |   <=   |              <=              |          |                                                     |          |
 |                            |                              |        |    git  reset -min版本号     |          |                                                     |          |
 |                            |                              |        | git merge/rebase origin/分支 |          |                                                     |          |
-|            \|\|            |              <=              |   <=   |              <=              |    <=    |                         <=                          |          |
+|                        |              <=              |   <=   |              <=              |    <=    |                         <=                          |          |
 |                            |                              |        |                              |          |                git pull origin  分支                |          |
 
 # 安装配置
@@ -76,6 +89,222 @@
 >
 > 编辑Git配置
 > `git config - -edit [- -global]`
+
+# 命令分类 功能分类（推荐）
+
+## 查询操作
+
+### log 提交历史
+
+```
+git log  #查询提交历史  q 退出
+#第一行是提交号，这是该次提交的SHA-1校验和
+#第二行是作者的名字
+#第三行是提交时间
+#最后一行是提交说明
+git log -2 #显示最近两条
+git -log --stat #详细历史  #根本不想看，我是不想看太多太复杂了
+git log --pretty  #定制查询
+git log --pretty=format:"%H - %h - %T - %t - %P - %p - %an - %ae - %ar" #见附加1表格
+git log --pretty=oneline #一行显示
+git log --since=2.weeks  #两周内提交历史
+```
+
+<a href="#fn1">附加1表格</a>
+
+```
+git describe  hsahname #查询节点所在位置
+```
+
+
+
+### status工作区和暂存区状态
+
+```
+git status  #显示工作区文件和暂存区状态
+```
+
+## 区域操作
+
+### add
+
+```
+git add . #把工作区全部添加暂存区
+git add ./text/test.txt  #详细路径从工作区添加到暂存区
+git add -A        #把新增、和修改的、和删除的都加到缓存
+```
+
+### rm （针对是暂存区和工作区）
+
+```
+git rm [-f | --force] [-n] [-r] [--cached] [--ignore-unmatch] [--quiet] [--] <file>…
+git rm . #同时从工作区和索引中删除文件。即本地的文件也被删除了。
+git rm --cached . 从索引中删除文件。但是本地文件还存在， 只是不希望这个文件被版本控制。.可以是文件路径
+git rm -r --cached .   #主要这个点一定要写，-r是指文件夹 #删除缓存区所有文件命令 对应add操作
+```
+
+### commit
+
+```
+git commit -m 'xxx' # 提交并条件注释
+git commit --amend -m 'xxx' #合并上一次提交（反复修改）
+git commit -am 'xxx' #将 add 和 commit 合并为一步
+```
+
+### push
+
+```
+git push origin hashNAme #提交从本地仓库到服务器仓库 /并合并 ，包括merge
+git push -f #强制推送  #不建议	
+git push -u origin master #设置默认git push请求，之后就git push就可以提交到master
+git push origin --tags #推送本地所有版本
+
+git push origin --delete bug_xzx #删除远程分支
+git push --all origin  #所有分支提交到远程仓库
+
+git push A B:C     #其中A和C是分别remote端的一个repository的名字和其branch的名字，B是本地端branch的名字
+git push origin :branchName  #删除远程仓库分支
+git push origin master     #把本地仓库提交到远程仓库的master分支中
+git push origin test:master   #提交本地test分支作为远程的master分支
+git push origin test:test    # 提交本地test分支作为远程的test分支
+
+```
+
+### fetch
+
+```
+git fetch hashName #从服务器上拉取最新版本到本到本地仓库
+git fetch --all hashName 
+git fetch --multiple hashName 
+```
+
+### pull
+
+```
+git pull hashName #从服务器上拉取最新版本到本到本地仓库 #并合并，包括merge
+git pull --rebase origin master  #等于 git fetch + git rebase
+
+#冲突   并且会出现   |MERGING
+<<<<<<< HEAD
+master2   #当前版本
+=======
+master1   #向上版本
+>>>>>>> de442d10c788e5b85cb61a2b5f26e75d38d36cf5
+
+```
+
+
+
+## 节点操作
+
+### branch  分支
+
+```
+git branch #查询所有分支
+git branch 分支名字  #创建分支
+git branch -f name hashname #存在的话，强制指向hashname的指针名为name，不存在就新建一个
+git branch -u branchOriginName branchName;#隐式绑定更新完绑定更新对象。就等同于让远程仓库的分支名再本地绑定分支。默认是origin/dev，本地就是dev,如果想要本地交org就把branchName改成org，但是branch Name需要存在
+git branch -m <oldbranch> <newbranch> #重命名本地分支
+git branch -D #删除分支
+git branch -d #强制删除分支
+
+git branch -v #查看所有分支最后一次提交
+git branch --merged #那些分支合并到当前分支中
+```
+
+### cheackout 分支
+
+```
+git checkout nodeName #切换到nodeName
+git checkout nodeName .#重新暂存区拉取全部内容 ，可以重新拉取对应文件
+git checkout nodeName ./text.txt #重新暂存区拉取全部内容 ，可以重新拉取对应文件
+git checkout nodeName[^2][~4]  #^表示横向分支第几个（1本身，2另一个merge分支），~向上找第4个
+#就是说~是纵轴查询，^是横向查询最大为2
+git checkout -b newbranch branchOriginName  #隐式绑定更新完绑定更新对象。就等同于让远程仓库的分支名再本地绑定分支。默认是origin/dev，本地就是dev,如果想要本地交org就
+把branchName改成org，不需要存在newBranch
+```
+
+### rebase  复制
+
+```
+git rebase nodeName #复制当前节点到nodeName 会自动补全不存在的节点
+git rebase -i nodeName~4 #选择nodeName开始以上4个，复制并生成到对应第四个节点新叶子上 如果当前是merge节点，则会选择两个父级节点进行，进入vi界面  具体见附录3
+#当分支后面跟着|REBASE-i x/x 时候可以选择取消本次操作
+git rebase --abort  //取消这次复制
+```
+
+<a herf="fn3">附录3</a>
+
+### cherry-pick 复制
+
+```
+git cherry-pick  nodeName hashname # 把nodeName 复制接到hashname下
+```
+
+### merge 合并
+
+```
+git merge nodeName #以自己为主合并nadeName节点生成新节点（本地库）
+git merge origin/nodeName #取远程合并到本地。
+```
+
+### reset  变基(切换节点指向)（撤销）
+
+实质行为并不是撤销，而是移动 **HEAD**，但是安全，相对于git branch -f nodeName 
+
+```
+# 有三种模式  # soft ,mixed ,hard
+git reset hashName #本地仓库重新分支指针重新指向一个节点，用于回退版本
+git reset --mixed #默认模式，不加参数保留工作目录，并且清空暂存区。
+git reset --hard #重置stage区和工作目录,就是没有commit的修改会被全部擦掉。
+git reset --soft #保留工作目录，并把重置 HEAD 所带来的新的差异放进暂存区
+```
+
+### revert 反向制作
+
+```
+git revert hashName
+git revert -n hashName #本地仓库操作，反向制作文件rever来抵消之前操作，会生成一个新节点
+```
+
+### tag （锚点，版本）
+
+```
+git tag #查看所有版本
+git tag -l 'v1.4.2.*' #查看以这个开口，最后一位随意的版本
+git tag newTagName nodeName #添加一个新版本到某个节点
+git tag -a v1.4 -m 'my version 1.4'  #-a 为指定版本  -m为注释 
+git show v1.4   #则会显示 注释有 my version 1.4 
+git tag -d v1.0  #删除版本v1.0
+```
+
+
+
+## 跟踪分支
+
+跟踪分支是指，更新某一分支，绑定其对应的服务器只读分支。而origin/分支 会在`git push` 时候更新。
+
+```
+git branch -u branchOriginName nodeName   # 让foo跟踪origin/master 需要两个都存在
+git checkout -b nodeName branchOriginName  #新建foo并设置为使用状态跟踪origin/master 
+```
+
+### 切换指向节点
+
+```
+git reset hashNAme #本地仓库重新分支指针重新指向一个节点，用于回退版本
+git branch -b newHashName hashName # 可以是新的newHashName ，也可以是存在的
+```
+
+
+
+## 初始化
+
+```
+git clone https:#xxx.git  "newName"    #拷贝到本地，初始化
+git clone -b v2.8.1 https:#xxx.git   #拉取版本v2.8.1
+git init #本地初始化
+```
 
 # 命令 结构分类
 
@@ -403,244 +632,42 @@
 >
 > /*将本地所有分支推送到远程仓库对应的分支*/
 
-# 命令分类 功能分类（推荐）
 
-## 查询操作
-
-### log 提交历史
-
-```
-git log  //查询提交历史  q 退出
-//第一行是提交号，这是该次提交的SHA-1校验和
-//第二行是作者的名字
-//第三行是提交时间
-//最后一行是提交说明
-git log -2 //显示最近两条
-git -log --stat //详细历史  //根本不想看，我是不想看太多太复杂了
-git log --pretty  //定制查询
-git log --pretty=format:"%H - %h - %T - %t - %P - %p - %an - %ae - %ar" //见附加1表格
-git log --pretty=oneline //一行显示
-git log --since=2.weeks  //两周内提交历史
-```
-
-<a href="#fn1">附加1表格</a>
-
-### status工作区和暂存区状态
-
-```
-git status  //显示工作区文件和暂存区状态
-```
-
-
-
-## 区域操作
-
-### add
-
-```
-git add . //把工作区全部添加暂存区
-git add ./text/test.txt  //详细路径从工作区添加到暂存区
-```
-
-### commit
-
-```
-git commit -m 'xxx' // 提交并条件注释
-git commit --amend -m 'xxx' //合并上一次提交（反复修改）
-git commit -am 'xxx' //将 add 和 commit 合并为一步
-```
-
-### push
-
-```
-git push origin hashNAme //提交从本地仓库到服务器仓库 /并合并 ，包括merge
-```
-
-### fetch
-
-```
-git fetch hashName //从服务器上拉取最新版本到本到本地仓库
-```
-
-### pull
-
-```
-git pull hashName //从服务器上拉取最新版本到本到本地仓库 //并合并，包括merge
-```
-
-
-
-## 节点操作
-
-### branch  分支
-
-```
-git branch //查询所有分支
-git branch 分支名字  //创建分支
-git branch -f name hashname //存在的话，强制指向hashname的指针名为name，不存在就新建一个
-git branch -u branchOriginName branchName;隐藏更新完绑定更新对象。隐藏name  跟随hashname
-```
-
-### cheackout 分支
-
-```
-git checkout nodeName //切换到nodeName
-git checkout nodeName .//重新暂存区拉取全部内容 ，可以重新拉取对应文件
-git checkout nodeName ./text.txt //重新暂存区拉取全部内容 ，可以重新拉取对应文件
-git checkout nodeName[^2][~4]  //^表示横向分支第几个（1本身，2另一个merge分支），~向上找第4个
-//就是说~是纵轴查询，^是横向查询最大为2
-git checkout -b newbranch nodeName  //设置新分支到节点上
-```
-
-### rebase  复制
-
-```
-git rebase nodeName //复制当前节点到nodeName 会自动补全不存在的节点
-git rebase -i nodeName~4 //选择nodeName开始以上4个，复制并生成到对应第四个节点新叶子上 如果当前是merge节点，则会选择两个父级节点进行
-```
-
-### merge 合并
-
-```
-git merge nodeName //以自己为主合并nadeName节点生成新节点
-```
-
-### reset  变基(切换节点指向)（撤销）
-
-实质行为并不是撤销，而是移动 **HEAD**，但是安全，相对于git branch -f nodeName 
-
-```
-// 有三种模式  // soft ,mixed ,hard
-git reset hashName //本地仓库重新分支指针重新指向一个节点，用于回退版本
-git reset --mixed //默认模式，不加参数保留工作目录，并且清空暂存区。
-git reset --hard //重置stage区和工作目录,就是没有commit的修改会被全部擦掉。
-git reset --soft //保留工作目录，并把重置 HEAD 所带来的新的差异放进暂存区
-```
-
-### revert 
-
-```
-git revert hashName
-git revert -n hashName //本地仓库操作，反向制作文件rever来抵消之前操作，会生成一个新节点
-```
-
-
-
-## 跟踪分支
-
-跟踪分支是指，更新某一分支，绑定其对应的服务器只读分支。而origin/分支 会在`git push` 时候更新。
-
-```
-git branch -u branchOriginName nodeName   // 让foo跟踪origin/master 需要两个都存在
-git checkout -b nodeName branchOriginName  //新建foo并设置为使用状态跟踪origin/master 
-```
-
-切换指向节点
-
-```
-git reset hashNAme //本地仓库重新分支指针重新指向一个节点，用于回退版本
-git branch -b newHashName hashName // 可以是新的newHashName ，也可以是存在的
-```
-
-
-
-## 简易
-
-`git  clone  <url>  "newName"`    //拷贝到本地
 
 # 整理常用集合命令
 
 ## 还原
 
 ```
-//从本地库拉取到暂存区
+#从本地库拉取到暂存区
 git reset nodeName
-//从暂存区拉取到工作区
+#从暂存区拉取到工作区
 git checkout nodeName .
 ```
 
 记得，git reset --hard 目标版本号 拉到原来的版本之后，和覆盖的对比 再提交，之前是这么操作的
+
+### 冲突
+
+```
+git add .
+git commit -m 'add'
+git push  #失败
+git pull  #冲突
+#修改冲突
+git commit #重新提交冲突部分
+git push #提交到远程
+```
 
 
 
 # 问题补充
 
 ```
-git fast-forrward
+git fast-forrward  #补
 ```
 
-step1: 删除本地
-rm -rf ai.txt
-step2:删除暂存区
-git rm ai.txt
 
-git status
-
-
-
-两种节点，第一种是固定，第二种事HEAD节点（指当前节点，必须大写）
-
-git init  //初始化   问题   fatal: Not a git repository (or any of the parent directories): .git
-
-
-
-git  revert hashname  //会生产一个新节点，节点就跟hashname内容一样
-
-git cherry-pick  hashname hashname // 把之后的节点复制添加到当前 HEAD	
-
-git rebase -i  hashname~3 //把hashname节点之前一共三个进行排序，重新生成一次
-
-git fast-forward
-
-git  tag  name   hashname   //把hashname设置为锚点name
-
-git describe  hsahname  //  查看最近位置    <tag>_<numCommits>_g<hash> `tag` 表示的是离 `ref` 最近的标签， `numCommits` 是表示这个 `ref` 与 `tag` 相差有多少个提交记录， `hash` 表示的是你所给定的 `ref` 所表示的提交记录哈希值的前几位。
-
-git branch bugWork master~^2~  //可以组合使用
-
-^ ~  都可以是父级，^跟着数字是指横向选择另一个，~跟着数字是上下选择
-
-
-
-git  push   //推送
-
-git  clone 
-
-git  pull   ///拿来，从云端拿，但是合并
-
-git  fetch  //拿来，从云端拿，但是不合并
-
-
-
-//隐式更新合并，在pull和push种
-
-git checkout -b  name  hashname ;切换一个新节点到name  上 并隐式绑定自动更新对象hashname .
-
-
-
-git checkout -b
-
-git push origin  hashName  //从当前HEAD节点到hashname提交  
-
-git push origin  hashName :newHashName //从当前HEAD节点到hashname提交  :跟着新名字
-
-git frech origin  hashName:newName  //一部分并重命名
-
-git frech //全部
-
-git push origin :hashName // 参数为空，删除hashName分支
-
-git  fetch   origin  :hashName  //参数为空，生成HashName分支到当前角色下
-
-git  pull  
-
-等同于 git  fetch  加上  git  merge  两个功能合并
-
-`git pull origin foo` 相当于：
-
-`git fetch origin foo; git merge o/foo`
-
-进行组合
 
 # 附件
 
@@ -664,15 +691,14 @@ git  pull
 | %cr  | 提交日期，按多久之前的方式显示         |
 | %s   | 提交说明                               |
 
+<div name="fn3">附录三</div>
 
-
-pick：保留该commit（缩写:p）
-reword：保留该commit，但我需要修改该commit的注释（缩写:r）
-edit：保留该commit, 但我要停下来修改该提交(不仅仅修改注释)（缩写:e）
-squash：将该commit和前一个commit合并（缩写:s）
-fixup：将该commit和前一个commit合并，但我不要保留该提交的注释信息（缩写:f）
-exec：执行shell命令（缩写:x）
-drop：我要丢弃该commit（缩写:d）
-————————————————
-版权声明：本文为CSDN博主「0x2015」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。
-原文链接：https://blog.csdn.net/w57685321/java/article/details/86597808
+> 修改位置就真修改内容位置。
+>
+> pick：保留该commit（缩写:p）
+> reword：保留该commit，但我需要修改该commit的注释（缩写:r）
+> edit：保留该commit, 但我要停下来修改该提交(不仅仅修改注释)（缩写:e）
+> squash：将该commit和前一个commit合并（缩写:s）
+> fixup：将该commit和前一个commit合并，但我不要保留该提交的注释信息（缩写:f）
+> exec：执行shell命令（缩写:x）
+> drop：我要丢弃该commit（缩写:d）
