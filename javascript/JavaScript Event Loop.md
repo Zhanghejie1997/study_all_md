@@ -1,4 +1,4 @@
-# JavaScript Event Loop
+# JavaScript Event Loop 事件循环
 
 javascript是一门单线程语言，他的异步和多线程的实现是通过event loop事件循环机制。
 
