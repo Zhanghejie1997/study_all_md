@@ -1,4 +1,4 @@
-breakes5——补其es6
+# breakes5——补其es6
 
 - ES5 : 09年发布
 - ES6(ES2015) : 15年发布, 也称为ECMA2015
@@ -762,10 +762,37 @@ function Obj(){
 
 ## window 对象
 
+(针对后续vue、react没过多涉及)
+
+[参考网站](https://www.runoob.com/jsref/dom-obj-document.html)
+
 window.open() - 打开新窗口
 window.close() - 关闭当前窗口
 window.moveTo() -移动当前窗口
 window.resizeTo() -重新调整当前窗口
+
+document.getElementById(id)	通过元素 id 来查找元素
+document.getElementsByTagName(name)	通过标签名来查找元素
+document.getElementsByClassName(name)	通过类名来查找元素
+document.querySelector()	返回文档中匹配指定的CSS选择器的第一元素
+document.querySelectorAll()	返回文档中匹配的CSS选择器的所有元素节点列表
+
+
+
+element.innerHTML = new html content	改变元素的 inner HTML
+element.attribute = new value	改变 HTML 元素的属性值
+element.setAttribute(attribute, value)	改变 HTML 元素的属性值
+element.style.property = new style	改变 HTML 元素的样式
+
+document.createElement(element)	创建 HTML 元素
+document.removeChild(element)	删除 HTML 元素
+document.appendChild(element)	添加 HTML 元素
+document.replaceChild(element)	替换 HTML 元素
+document.write(text)	写入 HTML 输出流
+
+
+
+document.getElementById(id).onclick = function(){code}	向 onclick 事件添加事件处理程序
 
 ## 提示
 
