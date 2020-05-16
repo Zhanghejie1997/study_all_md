@@ -13,17 +13,91 @@ breakes5——补其es6
 
 ## es5输出
 
-使用 window.alert() 写入警告框
 
-使用 document.write() 写入 HTML 输出
+## 区分————一部分规范
 
-使用 innerHTML 写入 HTML 元素
+- 在JavaScript设置字符串为**单引号**`'`,在html和css中为**双引号**`"`
 
-使用 console.log() 写入浏览器控制台
+- json对象的**key**在json中为**双引号**
+
+- **变量**和**函数**命名**小驼峰**
+
+- 运算符**前后**使用一个空格，以及逗号**后**面添加一个空格
+
+- 代码缩进4个空格
+
+- 花括号在开始时候需要一个空格和` {` }
+
+  ```javascript
+  function fn() {  //需要一个空格，然后回车
+  	console.log(3);
+  }
+  ```
+
+- 对象格式,最后一个不加逗号
+
+  ```javascript
+  let a ={
+  	name: "json",
+  	sex: "true"
+  }
+  ```
+
+- 每行不超过80个字符，
+
+  ```javascript
+  document.getElementById("demo").innerHTML =
+      "Hello Kitty.";  //空4个
+  ```
+
+- 文件名小写，框架组件另算
+
+# 对象
+
+## 变量声明
+
+- `var` 全局变量，尽量不用
+
+  存在变量提升：变量提升是指，当前存在一个变量（没声明，或者用var声明），再次声明一次，就被提升到顶点，哪怕先使用也没问题。
+
+  ```
+  {
+  	//可以使用
+  	var a = 33;
+  	//可以使用
+  }
+  ```
+
+  
+
+- `let`  局部变量，在作用域内，不能重新声明
+
+  ```
+  //作用域外，不能使用
+  {
+  	//死区，不能使用
+  	let a = 33;
+  	//可以使用
+  }
+  //作用域外，不能使用
+  ```
+
+- `const`  常量，对不能修改其**值或者指向**，可以存放函数。
+
+  ```javascript
+  const  car = {a:3,b:3}
+  car.a = 4 //可以修改。
+  car = {} //不可以
+  ```
 
 ## JSON 对象方法
 
 全局对象JSON，对其进行序列化**`JSON.parse(text [, reviver])`**,反序列化**`JSON.stringfity`**,就是字符串转成json对象。
+
+
+
+- `a={get a(){},set a(a){} }`  `get`和`set`，使用为`a.a` 为获取和`a.a=‘d’` 为赋值
+- `a={function add(num){} }`  使用为两种，获取**函数**或者**执行函数**，let fn=a.add ,fn(a) ,获取之后自己执行，或者a.add(a)   这就是直接执行
 
 注意必须是`双引号`，不然报错
 
@@ -31,7 +105,7 @@ breakes5——补其es6
 
 ```javascript
 var result = JSON.parse('{"a": 1, "b": "2"}', function(key, value){
-  if (typeof value == 'string'){
+  if (typeof value == 'string') {
     return parseInt(value);
   } else {
     return value; 
@@ -59,9 +133,9 @@ var result = JSON.parse('{"a": 1, "b": "2"}', function(key, value){
    console.log(c);
   ```
 
-  
+- json.prototype
 
-## Object  添加的新方法
+## Object对象  新方法
 
 - `Object.getPrototypeOf (object)`访问原型
 
@@ -127,7 +201,7 @@ var result = JSON.parse('{"a": 1, "b": "2"}', function(key, value){
 
 - `Object.keys(object)` 以数组返回所有可枚举的属性
 
-## Array 数组添加的新属性
+## Array 数组方法
 
 - **查**
 
@@ -136,6 +210,8 @@ var result = JSON.parse('{"a": 1, "b": "2"}', function(key, value){
 - `Array.prototype.lastIndexOf(item[,start])`  从后向前查询，start负数就倒数开始算
 
 - `Array.prototype.toString()` 输出未字符串
+
+- `Array.isArray(arr)` 判断arr是否为数组
 
   **增删除**
 
@@ -189,6 +265,8 @@ var result = JSON.parse('{"a": 1, "b": "2"}', function(key, value){
 
 - `String.prototype.lastIndexOf(str[,index])`  从右往左index下标开始默认0，查询是否有相同字符串，存在返回下标
 
+- 
+
   **改**
 
 - `String.prototype.search([正则表达式],str)`   替换可以放正则表达式 ,替换成str
@@ -219,7 +297,13 @@ var result = JSON.parse('{"a": 1, "b": "2"}', function(key, value){
 
 - `String.prototype.charCodeAt(position)` 返回定索引的字符 unicode 编码
 
-## Number 数值
+  **转换**
+
+- `String.prototype.parseFloat()`   解析字符串并返回浮点数。
+
+- `String.prototype.parseInt()`   解析析字符串并返回整数。
+
+## Number 方法
 
 number精度是64位浮点数，且在小数计算时候会不精确，需要进行放大在缩小。
 
@@ -238,6 +322,16 @@ var x = (0.2 * 10 + 0.1 * 10) / 10;       // x 将是 0.3
 
   方法
 
+  ### 属性
+
+- `Number.EPSILON`  值安全区间，取值    **es6**
+
+- `Number.MIN_SAFE_INTEGER`  最小值安全值 **es6**
+
+- `Number.MAX_SAFE_INTEGER` 最大值安全值 **es6**
+
+  ### 方法
+
 - `num.toString([number])`  转成字符串，且进制转化，`num.toString(进制数)`
 
 - `num.toExponential(number)`   转为为指数，保留number位小数， `9.66e+2`
@@ -246,9 +340,15 @@ var x = (0.2 * 10 + 0.1 * 10) / 10;       // x 将是 0.3
 
 - `num.toPrecision(number)` 返回指定一共保留多少位
 
-- `str.valueOf()`
+- `Number.isInteger(number)`    是否为整数   **es6**
 
-## 日期
+- `Number.isSafeInteger(number)` 是否为双精度数的整数  **es6**
+
+- `isFinite()`  全局函数，参数是否为Infinity   **es6**
+
+- `isNaN()`  全局函数，参数是否为NaN   **es6**
+
+## Date对象 方法
 
 ```javascript
 var date = new Date([year, month, day, hours, minutes, seconds,] milliseconds) //月份从0开始算，如果有两个参数，自动识别第二参数为秒。
@@ -257,6 +357,7 @@ var date = new Date("2018[-02-19[T12:00:00]]")  //iso日期
 var date = new Date("MM/DD/YYYY|[YYYY/MM/DD]")  //短日期
 var date = new Date("Feb 19 2018");//长日期
 var date = new Date("Mon Feb 19 2018 06:55:23 GMT+0100 (W. Europe Standard Time)");//完整日期
+date.now()  //现在时间
 ```
 
 ​		**显示日期**
@@ -287,7 +388,7 @@ var date = new Date("Mon Feb 19 2018 06:55:23 GMT+0100 (W. Europe Standard Time)
 
 - `getTime()`	获取时间（从 1970 年 1 月 1 日至今）
 
-## Math对象
+## Math对象  方法 和属性
 
 ​		**属性**
 
@@ -317,7 +418,9 @@ var date = new Date("Mon Feb 19 2018 06:55:23 GMT+0100 (W. Europe Standard Time)
 
 - `Math.floor` 返回不大于number的最大整数，负数也一样，比如3.2返回3，-3.2返回-4
 
-- `Math.pow(x,y)` 返回x的y次幂
+- `Math.pow(x,y)` 返回x的y次幂 
+
+  - `var  a  =  2 ** 3`   **es6** 的指数运算
 
 - `Math.sqrt(x)`  返回x的平方根
 
@@ -353,12 +456,10 @@ var date = new Date("Mon Feb 19 2018 06:55:23 GMT+0100 (W. Europe Standard Time)
 
   **运算符号：** ==、<、>、===、&&、||、!、?:
 
-  (&、|) 这两个是数值的字符内进行的与或，返回是数值
-
   **基本逻辑：** 具备真实就是`true`，比如是一个实例。不具备真实就是`false`。如:
 
   > console.log(Boolean(null));
-  >
+>
   > console.log(Boolean(undefined));
   >
   > console.log(Boolean(NaN));
@@ -374,6 +475,97 @@ var date = new Date("Mon Feb 19 2018 06:55:23 GMT+0100 (W. Europe Standard Time)
   > console.log(Boolean());
   >
   > console.log(Boolean(false));
+
+# 计算符号
+
+## 普通符号
+
+赋值符号：`=、+=、-+、*=、/=、；`
+
+比较符号：==、>=、<=、!=、===、!==； 最后两个不会对比较的两个对象进行类型转换
+
+## 位运算符号
+
+| 运算符 | 名称         | 描述                                                     |
+| :----- | :----------- | :------------------------------------------------------- |
+| &      | AND          | 如果两位都是 1 则设置每位为 1                            |
+| \|     | OR           | 如果两位之一为 1 则设置每位为 1                          |
+| ^      | XOR          | 如果两位不同则为1                                        |
+| ~      | NOT          | 反转所有位                                               |
+| <<     | 零填充左位移 | 通过从右推入零向左位移，并使最左边的位脱落。             |
+| >>     | 有符号右位移 | 通过从左推入最左位的拷贝来向右位移，并使最右边的位脱落。 |
+| >>>    | 零填充右位移 | 通过从左推入零来向右位移，并使最右边的位脱落。           |
+
+例子
+
+| 操作    | 结果 | 等同于       | 结果 |
+| :------ | :--- | :----------- | :--- |
+| 5 & 1   | 1    | 0101 & 0001  | 0001 |
+| 5 \| 1  | 5    | 0101 \| 0001 | 0101 |
+| 5 ^ 1   | 4    | 0101 ^ 0001  | 0100 |
+| ~ 5     | 10   | ~0101        | 1010 |
+| 5 << 1  | 10   | 0101 << 1    | 1010 |
+| 5 >> 1  | 2    | 0101 >> 1    | 0010 |
+| 5 >>> 1 | 2    | 0101 >>> 1   | 0010 |
+
+## 类型转换
+
+​		类型监测
+
+- `typeof  变量`   返回是字符串。
+
+  > NaN 的数据类型是数值
+  >
+  > 数组的数据类型是对象
+  >
+  > 日期的数据类型是对象
+  >
+  > null 的数据类型是对象
+  >
+  > 未定义变量的数据类型是 *undefined*
+  >
+  > 尚未赋值的变量的数据类型也是 *undefined*
+  >
+  > **您无法使用 typeof 去判断 JavaScript 对象是否是数组（或日期）。**
+
+- **判断数组或者date**
+
+  ```JavaScript
+  function isArray(myArray) {
+      return myArray.constructor.toString().indexOf("Array") > -1;
+      return myArray.constructor === Array;
+      return myDate.constructor.toString().indexOf("Date") > -1;
+      return myDate.constructor === Date;
+  }
+  ```
+
+- `Array.isArray(变量)`  【ie8 不支持】
+
+# 语句块
+
+## 语句块
+
+针对于语句块，会自动添加分号
+
+```
+//-----例子1----
+let a = 3
+let b = 3
+//-----等于-----
+let a = 3;
+let b = 3;
+
+//----例子2----
+function add(a,b){
+	return 
+		a+b
+}
+//-----等同于----
+function add(a,b){
+	return ;//返回undefined
+	a+b;  //永远不执行
+}
+```
 
 ## 语句——判断or循环
 
@@ -418,64 +610,55 @@ do{
 - `break [标签名]`   退出当前整个循环体
 - `continue [标签名]`   退出当前当前一次循环
 
-## 类型转换
+## 异常——Throw 和 Try to Catch
 
-​		类型监测
+```javascript
+try{
+	//监测代码
+	throw "异常内容"//自创异常
+}cathch(err){
+	//处理出错
+}finally{
+	//执行
+}
+```
 
-- `typeof  变量`   返回是字符串。
+## function 函数
 
-  > NaN 的数据类型是数值
-  >
-  > 数组的数据类型是对象
-  >
-  > 日期的数据类型是对象
-  >
-  > null 的数据类型是对象
-  >
-  > 未定义变量的数据类型是 *undefined*
-  >
-  > 尚未赋值的变量的数据类型也是 *undefined*
+​		执行的语句块，函数提升，在除了使用函数表达式的函数，其他情况下都可以先调用，后创建。
 
+```
+function add(x, y, z = 3) { // z不赋值默认为3，y不赋值默认为undefined
+	arguments //可以使用  
+}(1)   //自调用
+```
+
+​		**属性**
+
+- `arguments`  接受到的参数，使用数组接受。
 - 
+- `function  name(a , b = 3) {}`   接受默认b为3
+- `let  fn = function(a){return a}` 函数表达,使用 `fn(2)`,本质上是匿名函数
+- `let  fn = new Function("a","b","return a*b")` 使用构造器   ，不推荐使用
+- `() => {}`   箭头函数   **es6**
 
-## HTML事件
+### 闭包
 
-配合监听使用
-
-| 事件        | 描述                         |
-| ----------- | ---------------------------- |
-| onclick     | 用户点击了 HTML 元素         |
-| onmouseover | 用户把鼠标移动到 HTML 元素上 |
-| onmouseout  | 用户把鼠标移开 HTML 元素     |
-| onkeydown   | 用户按下键盘按键             |
-| onload      | 浏览器已经完成页面加载       |
-| onchange    | HTML 元素已被改变            |
-
-## 语句块
-
-针对于语句块，会自动添加分号
+老生常谈，神奇的var配合闭包
 
 ```
-//-----例子1----
-let a = 3
-let b = 3
-//-----等于-----
-let a = 3;
-let b = 3;
-
-//----例子2----
-function add(a,b){
-	return 
-		a+b
+var a = 1;
+function fnc = (a,b=()=>a){
+	var a ;
+	var c = a;
+	a = 2;
+	console.log(a,b(),c) ; //这里由于var重复声明，但是没赋值，所以fnc不存在this.a  这里产生了闭包
+	//2 1 1
 }
-//-----等同于----
-function add(a,b){
-	return ;//返回undefined
-	a+b;  //永远不执行
-}
+fnc(a);
 ```
 
-## this 的指向问题
+### this 的指向问题
 
 this指向调用它最近的对象，window是一个最大的对象。
 
@@ -499,6 +682,7 @@ obj.show()
 - `fn.call(Object,item,items)`  //接受this指向对象，接受n个对象
 - `fn.apply(Object,[item,item,item])`  //接受this指向的对象，接受一个数组
 - `fn.Bind(Object,item)`  //接受this指向的对象，接受item，当接受的参数匹配fn所需要的参数时候执行，就是说fn(a,b)，但是现在fn.bind(t,1),它不会执行，需要在给他一个参数才执行，也就是函数柯里化。
+- `()=>{}` 这是es6的指针函数，指向当前的this，且不可修改this指向，call都不能修改指向
 
 new一个也是对象
 
@@ -515,23 +699,73 @@ function Obj(){
 
 
 
-## 闭包
+## 
 
-老生常谈，神奇的var配合闭包
+## HTML事件
 
-```
-var a = 1;
-function fnc = (a,b=()=>a){
-	var a ;
-	var c = a;
-	a = 2;
-	console.log(a,b(),c) ; //这里由于var重复声明，但是没赋值，所以fnc不存在this.a  这里产生了闭包
-	//2 1 1
-}
-fnc(a);
-```
+### 配合监听使用
+
+| 事件        | 描述                         |
+| ----------- | ---------------------------- |
+| onclick     | 用户点击了 HTML 元素         |
+| onmouseover | 用户把鼠标移动到 HTML 元素上 |
+| onmouseout  | 用户把鼠标移开 HTML 元素     |
+| onkeydown   | 用户按下键盘按键             |
+| onload      | 浏览器已经完成页面加载       |
+| onchange    | HTML 元素已被改变            |
+
+### input 控件
+
+获取：`document.getElementById("id1")`   
+
+​		**属性**
+
+- `validity`  包含与 input 元素的合法性相关的布尔属性。
+
+  - `customError`	设置为 true，如果设置自定义的合法性消息。
+  - `patternMismatch`	设置为 true，如果元素值不匹配其 pattern 属性。
+  - `rangeOverflow`	设置为 true，如果元素值大约其 max 属性。
+  - `rangeUnderflow`	设置为 true，如果元素值小于其 min 属性。
+  - `stepMismatch`	当字段拥有 step 属性，且输入的 value 值不符合设定的间隔值时，该属性值为 true。
+  - `tooLong`	设置为 true，如果元素值超过了其 maxLength 属性。
+  - `typeMismatch`	当字段的 type 是 email 或者 url 但输入的值不是正确的类型时，属性值为 true。
+  - `valueMissing`	设置为 true，如果元素（包含 required）没有值。
+  - `valid`	设置为 true，如果元素值是有效的。
+
+- `validationMessage`	包含当 validity 为 false 时浏览器显示的消息。
+
+- `willValidate`	指示是否验证 input 元素。
+
+  **方法**
+
+- `checkValidity()`   true 是验证过了，false验证无效
 
 
+
+## 性能
+
+### 请勿使用 new Object()
+
+- 请使用 {} 来代替 new Object()
+- 请使用 "" 来代替 new String()
+- 请使用 0 来代替 new Number()
+- 请使用 false 来代替 new Boolean()
+- 请使用 [] 来代替 new Array()
+- 请使用 /()/ 来代替 new RegExp()
+- 请使用 function (){}来代替 new Function()
+
+**这是函数接收默认值**
+
+**用 default 来结束 switch**
+
+**避免使用 eval()**
+
+## window 对象
+
+window.open() - 打开新窗口
+window.close() - 关闭当前窗口
+window.moveTo() -移动当前窗口
+window.resizeTo() -重新调整当前窗口
 
 ## 提示
 
@@ -545,5 +779,67 @@ var objec = {
 }
 var off = object.off;  //得到是方法 /可以off()执行。
 var Off = object.off(); //得到是3
+```
+
+简洁化对象的获取和赋值
+
+```javascript
+let person = {
+    id: 1,
+    numberFN: 123,
+    number: 123,
+    title: "asd",
+    addNumberFN: function () {
+        this.numberFN++;
+    },
+    getNumberFN: function () {
+        return this.numberFN;
+    },
+    get addNumberGet() {
+        this.number++;
+    },
+    get numberGet() {
+        return this.number;
+    }
+}
+console.log(person.getNumberFN());
+console.log(person.numberGet);
+
+person.addNumberFN();
+person.addNumberGet;
+
+console.log(person.getNumberFN());
+console.log(person.numberGet);
+```
+
+劫持,可以针对其简化的get和set进行重新指向
+
+```javascript
+// 定义对象
+var obj = {counter : 0};
+ 
+// 定义 setters
+Object.defineProperty(obj, "reset", {
+  get : function () {this.counter = 0;}
+});
+Object.defineProperty(obj, "increment", {
+  get : function () {this.counter++;}
+});
+Object.defineProperty(obj, "decrement", {
+  get : function () {this.counter--;}
+});
+Object.defineProperty(obj, "add", {
+  set : function (value) {this.counter += value;}
+});
+Object.defineProperty(obj, "subtract", {
+  set : function (value) {this.counter -= value;}
+});
+ 
+// 操作计数器：
+obj.reset;
+obj.add = 5;
+obj.subtract = 1;
+obj.increment;
+obj.decrement;
 ```
 
