@@ -55,6 +55,43 @@ react也有脚手架。
 
 - `undefined`   未赋值
 
+## 元组
+
+定义数组的时候
+
+`let arr: number[]`
+
+`let arr:[number,string] = [1,'2']`,设置其arr为数组，但是接受类型为number，string按顺序，不可多不可少
+
+## enum枚举
+
+```typescript
+enum name {  //定义
+	up, //0
+	dowm,  //1
+	left,  //2
+	right
+}
+
+enum name day  ;//实例化day
+    
+enum Days {Sun = 7, Mon = 8 , Tue, Wed, Thu, Fri, Sat};//手动赋值
+```
+
+```typescript
+const enum Directions {  //参数枚举
+    Up,
+    Down,
+    Left,
+    Right
+}
+let directions = [Directions.Up, Directions.Down, Directions.Left, Directions.Right]
+//---编译结果
+var directions = [0 /* Up */, 1 /* Down */, 2 /* Left */, 3 /* Right */];
+```
+
+
+
 ### 联合类型
 
 -  可支持联合类型，就可以接受多种类型
@@ -76,9 +113,9 @@ react也有脚手架。
 
    
 
-### 对象接口：interface
+### 对象接口：interface 
 
-关键词`interface` 定义接口，添加为接口类，默认属性个数不能多，不能少，类型相同。
+关键词`interface` 定义接口，添加为接口类，默认属性个数不能多，不能少，类型相同。不是真实的类，是typescript定义的接口
 
 ```typescript
 interface Obj{ //定义对象接口
@@ -184,8 +221,368 @@ function reverse(x: string): string;	//有先
 function reverse(x: number | string): number | string {}
 ```
 
-### 类型断言
+#### 类型断言
 
-是一种ts版本的react的jsx
+是一种ts版本的react的jsx，解决再函数中出现定义接受类型时候出现类型不同，不存在共同方法，或者属性，来临时确定他的类型。它不是真实存在的需要类型转换，是指执行前的时候判断，而不是执行时候判断
 
-`值 as 类型`   或者   `<类型>值`
+`值 as 类型`   或者   `<类型>值` 
+
+注意不能太过于使用   as  any
+
+```typescript
+interface Cat {
+    name: string;
+    run(): void;
+}
+interface Fish {
+    name: string;
+    swim(): void;
+}
+
+function isFish(animal: Cat | Fish) {
+    if (typeof (animal as Fish).swim === 'function') {//断言他是Fish，这样才可以使用.swim，用来欺骗typescript。
+        return true;
+    }
+    return false;
+}
+```
+
+
+
+当出现可以兼容的时候才可以使用断言
+
+```typescript
+interface Animal {
+    name: string;
+}
+interface Cat {
+    name: string;
+    run(): void;
+}
+
+let tom: Cat = {
+    name: 'Tom',
+    run: () => { console.log('run') }
+};
+let animal: Animal = tom;
+
+//-------或者--------
+interface Animal {
+    name: string;
+}
+interface Cat extends Animal {
+    run(): void;
+}
+
+//---------或者-----------
+interface Animal {
+    name: string;
+}
+interface Cat {
+    name: string;
+    run(): void;
+}
+
+function testAnimal(animal: Animal) {
+    return (animal as Cat);
+}
+function testCat(cat: Cat) {
+    return (cat as Animal);
+}
+```
+
+结构相同，可以成立。
+
+总之，若 `A` 兼容 `B`，那么 `A` 能够被断言为 `B`，`B` 也能被断言为 `A`。
+
+同理，若 `B` 兼容 `A`，那么 `A` 能够被断言为 `B`，`B` 也能被断言为 `A`。
+
+#### 双重断言:除非迫不得已，千万别用双重断言。
+
+任何类型都可以被断言为 any
+
+any 可以被断言为任何类型
+
+```typescript
+interface Cat {
+    run(): void;
+}
+interface Fish {
+    swim(): void;
+}
+
+function testCat(cat: Cat) {
+    return (cat as any as Fish);
+}
+```
+
+## 声明文件
+
+- `declare var` 声明全局变量
+- `declare function` 声明全局方法
+- `declare class `声明全局类
+- `declare enum `声明全局枚举类型
+- `declare namespace `声明（含有子属性的）全局对象
+- `interface `和 `type` 声明全局类型
+- `export` 导出变量
+- `export namespace `导出（含有子属性的）对象
+- `export default `ES6 默认导出
+- `export = commonjs `导出模块
+- `export as namespace` UMD 库声明全局变量
+- `declare global `扩展全局变量
+- `declare module `扩展模块
+- /// <reference /> 三斜线指令
+
+下例中，`declare var` 并没有真的定义一个变量，只是定义了全局变量 `jQuery` 的类型，仅仅会用于编译时的检查，在编译结果中会被删除。它编译结果是：
+
+```typescript
+declare var jQuery: (selector: string) => any;
+jQuery('#foo');
+//------结果------
+jQuery('#foo');
+```
+
+格式需要一个`jQuery.d.ts`文件
+
+```typescript
+// src/jQuery.d.ts
+
+declare var jQuery: (selector: string) => any;
+```
+
+使用哪里使用就哪里调用文件
+```
+// src/index.ts
+
+jQuery('#foo');
+```
+
+使用方法
+
+- 全局变量：通过 `<script>` 标签引入第三方库，注入全局变量
+- npm 包：通过 `import foo from 'foo'` 导入，符合 ES6 模块规范
+- UMD 库：既可以通过 `<script>` 标签引入，又可以通过 import 导入
+- 直接扩展全局变量：通过 `<script>` 标签引入后，改变一个全局变量的结构
+- 在 npm 包或 UMD 库中扩展全局变量：引用 npm 包或 UMD 库后，改变一个全局变量的结构
+- 模块插件：通过 `<script>` 或 `import` 导入后，改变另一个模块的结构
+
+```typescript
+// src/Animal.d.ts
+
+declare class Animal {
+    name: string;
+    constructor(name: string);
+    sayHi(): string;
+}
+
+// src/jQuery.d.ts
+//嵌套命名空间
+declare namespace jQuery {
+    function ajax(url: string, settings?: any): void;
+    namespace fn {
+        function extend(object: any): void;
+    }
+}
+```
+
+## 内置对象
+
+### es
+
+`Boolean`、`Error`、`Date`、`RegExp` 等。
+
+### DOM 和 BOM 的内置对象
+
+`Document`、`HTMLElement`、`Event`、`NodeList` 等。
+
+# 进阶
+
+## 类型别名
+
+适应`type  typeName = string ` 这样就可以使用typeName来代替string
+
+## 类
+
+### es6的类
+
+```javascript
+class Cat extends Animal {
+    constructor(name) {
+        super(name); // 调用父类的 constructor(name)
+        console.log(this.name);
+    }
+    sayHi() {
+        return 'Meow, ' + super.sayHi(); // 调用父类的 sayHi()
+    }
+    get name() {
+        return 'Jack';
+    }
+    set name(value) {
+        console.log('setter: ' + value);
+    }
+    static isAnimal(a) {
+        return a instanceof Animal;
+    }
+}
+
+let c = new Cat('Tom'); // Tom
+console.log(c.sayHi()); // Meow, My name is Tom
+```
+
+### es7
+
+```javascript
+class Animal {
+    name = 'Jack';
+	static num = 42;
+    constructor() {
+        // ...
+    }
+}
+
+let a = new Animal();
+console.log(a.name); // Jack
+```
+
+
+
+### ts的类
+
+使用继承**extends**继承类和**implements**继承接口，且必须对父级的**abstaract**实现和接口方法实现才可以实例化对象。
+
+可以合并：针对相同属性相同类型，则属性合并为一个，当方法的时候，则存在两个，优先接受详细的类型参数。
+
+```typescript
+class Animal{
+	public name;
+    readonly title; //只读，只允许再初始化时候赋值一次
+    static display(){ //静态方法
+        
+    }; 
+    public constructor(name) {   //公有
+        this.name = name;
+    }
+    private sayHi() { //私有
+        
+    }
+    protected say() { //受保护
+        
+    }
+    //有抽象函数的对象不能实例化，需要补全其函数才可以一般用于父类，然后子类继承
+    public abstract toString() {  //抽象函数    
+        
+    }
+}
+class Cat extends Animal{
+    public constructor(name) {
+        super(name);
+    }
+    public toString() {
+        return ""
+    }
+}
+let animal: Animal  =  new Animal('a')  //报错，有抽象函数不能能实现
+let cat: Cat = new Cat('a')  //成功
+```
+
+```typescript
+interface Alarm {
+    alert(): void;
+}
+
+interface Light {
+    lightOn(): void;
+    lightOff(): void;
+}
+
+class Door {
+}
+
+class SecurityDoor extends Door implements Alarm,Light {
+    alert() {
+        console.log('SecurityDoor alert');
+    }
+    lightOn(){};
+    lightOff(){};
+}
+
+```
+
+```typescript
+interface Alarm {
+    price: number;
+    alert(s: string): string;
+}
+interface Alarm {
+    weight: number; 
+    price: number;// 属性名相同，所以类型必须相同
+    alert(s: string, n: number): string;
+}
+//----合并后
+interface Alarm {
+    price: number;
+    weight: number;
+    alert(s: string): string;
+    alert(s: string, n: number): string;
+}
+```
+
+
+
+### 范式
+
+在函数返回时候出现的无法马上确认其返回值的类型，使用`Array<any>`这样就不准确，就是可以使用范式。在函数被调用的时候来决定其返回的值的类型。`Array<T>`  (就跟java一样一样的~~)
+
+#### 泛型函数
+
+格式 `function fnName[<U [extends 类名|T],T [= string]]>](item:<T>,item2:Array<U>):<T>{}`,一个的时候可以不写。可以继承类名或者范式T,可以继承，可以默认值。
+
+当你使用T不知道类型的时候，就不能写其特殊的属性和方法，必须要共有
+
+```typescript
+//接受的参数类型有几个
+function addArr<T,U>(arr:Array<T>,item:U extends Lengthwise):Array<T> {//就是范式
+	arr.push(item);
+	return arr;
+}
+let arr = addArr<number,number>([3],1); //addArr<指定范式T,U的类型>不写也会自动推算出来
+
+//--- 错误示范
+function addArr<T>(items:T) {
+    return T.length //失败
+}
+addArr<Array<string>>(arr)   
+```
+
+#### 泛型接口
+
+```typescript
+interface Scan{
+    <T extends U,U>(son:T,parent:U):U;
+}
+let scan:Scan;
+scan = function <Son,Parent>(son,parent){return parent}
+```
+
+#### 泛型类
+
+```typescript
+class ClassName<T>{
+    style:T;
+    add(x:T,y:T):T;
+}
+```
+
+### 交叉类型
+
+```
+function concat<U,T>(item U,item2T):U & T {  //合并U和T变量
+
+}
+```
+
+[参考文章](https://www.tslang.cn/docs/handbook/basic-types.html)
+
+[参考文章2](https://www.tslang.cn/docs/handbook/basic-types.html)
+
+[参考文章3](https://www.runoob.com/typescript/ts-type.html)
