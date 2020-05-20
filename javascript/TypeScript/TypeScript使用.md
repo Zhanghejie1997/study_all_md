@@ -129,7 +129,7 @@ enum  name  变量
 
 `let a :typeof Greeter = new g()`
 
-# 定义别名
+### 定义别名
 
 - 定义
 
@@ -557,6 +557,41 @@ c.interval = 5.0;
 
 - #### 交叉类型：类型&类型
 
+- #### 别名：type  别名 = 类名  
+
+  - ```typescript
+    type Name = string ;
+    type Name1 = ()=> string ;
+    type Name2 = Name1|number ;
+    
+    let user:Name = 'student'
+    
+    type Name3<T> = {value:T}  //加入范式
+    type Tree<T> = {
+        value: T;
+        left: Tree<T>;
+        right: Tree<T>;
+    }
+    
+    ```
+
+  - ```typescript
+    //加入交叉类型
+    type LinkedList<T> = T & { next: LinkedList<T> };
+    
+    interface Person {
+        name: string;
+    }
+    
+    var people: LinkedList<Person>;
+    var s = people.name;
+    var s = people.next.name;
+    var s = people.next.next.name;
+    var s = people.next.next.next.name;
+    ```
+
+    
+
 - #### 泛型接口——实现函数 （看函数中）
 
 - #### 区分静态属性和实例部分
@@ -585,6 +620,288 @@ abstract class ClassName extends ClassParen {  //有抽象方法就是抽象类
     }
 	public abstract tostring():string;  // abstract 抽象方法，需啊哟实现不然不能实例化
     
+}
+```
+
+### this--链式编程
+
+类种函数返回类型是this，继承之后返回也是 当前的class，就可以使用链式编程
+
+```typescript
+class BasicCalculator {
+    public constructor(protected value: number = 0) { }
+    public currentValue(): number {
+        return this.value;
+    }
+    public add(operand: number): this {
+        this.value += operand;
+        return this;
+    }
+    public multiply(operand: number): this {
+        this.value *= operand;
+        return this;
+    }
+    // ... other operations go here ...
+}
+
+let v = new BasicCalculator(2)
+            .multiply(5)
+            .add(1)
+            .currentValue();
+
+
+class ScientificCalculator extends BasicCalculator {
+    public constructor(value = 0) {
+        super(value);
+    }
+    public sin() {
+        this.value = Math.sin(this.value);
+        return this;
+    }
+    // ... other operations go here ...
+}
+
+let v = new ScientificCalculator(2)
+        .multiply(5)
+        .sin()
+        .add(1)
+        .currentValue();
+```
+
+### 参数类型限制
+
+```typescript
+function getProperty(obj: T, key: K) {
+    return obj[key];
+}
+
+let x = { a: 1, b: 2, c: 3, d: 4 };
+
+getProperty(x, "a"); // okay
+getProperty(x, "m"); // error: Argument of type 'm' isn't assignable to 'a' | 'b' | 'c' | 'd'.
+
+//------修改
+function getProperty<T, K extends keyof T>(obj: T, key: K): T[K] {  //keyof 是指k值为t的键内的
+  return obj[key]
+}
+```
+
+
+
+### 附加-自定义类保护
+
+在不知道使用类型是什么，但是需要进行判断，使用其属性
+
+```typescript
+//----------第一种---------------
+//类型保护与区分类型，使用类型断言处理<>或者as
+if((<Bird>pet).fly){
+    (pet as Bird).fly();
+}else{
+    (<Fish>pet).swim();
+}
+
+//----------第二种---------------
+//用户自定义类型区分，使用 is 谓词
+function isFish(pet: Fish | Bird): pet is Fish {
+    return (<Fish>pet).swim !== undefined;
+}
+
+if (isFish(pet)) {
+    pet.swim();
+}
+else {
+    pet.fly();
+}
+```
+
+减少使用null,undefined
+
+由于接受到的参数有可能的为未定义和空值
+
+```
+function f(sn: string | null): string {
+    if (sn == null) {
+        return "default";
+    }
+    else {
+        return sn;
+    }
+}
+//------------修改----------------
+function f(sn: string | null): string {
+    return sn || "default";
+}
+
+
+```
+
+使用！来声明给typescript选择当前的值不为空或者undefined
+
+```
+function broken(name: string | null): string {
+  function postfix(epithet: string) {
+    return name.charAt(0) + '.  the ' + epithet; // error, 'name' is possibly null
+  }
+  name = name || "Bob";
+  return postfix("great");
+}
+
+function fixed(name: string | null): string {
+  function postfix(epithet: string) {
+    return name!.charAt(0) + '.  the ' + epithet; // ok
+  }
+  name = name || "Bob";
+  return postfix("great");
+}
+```
+
+## 别名type
+
+重新命名变量或者类，或者
+
+### 字符串字面量类型
+
+其接受值就在其内，有点像枚举的接受过滤。
+
+```
+type Easing = "ease-in" | "ease-out" | "ease-in-out";
+class UIElement {
+    animate(dx: number, dy: number, easing: Easing) {
+        if (easing === "ease-in") {
+            // ...
+        }
+        else if (easing === "ease-out") {
+        }
+        else if (easing === "ease-in-out") {
+        }
+        else {
+            // error! should not pass null or undefined.
+        }
+    }
+}
+
+let button = new UIElement();
+button.animate(0, 0, "ease-in");
+button.animate(0, 0, "uneasy"); // error: "uneasy" is not allowed here
+```
+
+### 类别名：type  别名 = 类名  
+
+`extends`和 `implements`（自己也不能 `extends`和 `implements`其它类型
+
+```typescript
+  type Name = string ;
+  type Name1 = ()=> string ;
+  type Name2 = Name1|number ;
+  
+  let user:Name = 'student'
+  
+  type Name3<T> = {value:T}  //加入范式
+  type Tree<T> = {
+      value: T;
+      left: Tree<T>;
+      right: Tree<T>;
+  }
+  
+```
+
+ ```typescript
+  //加入交叉类型
+  type LinkedList<T> = T & { next: LinkedList<T> };
+  
+  interface Person {
+      name: string;
+  }
+  
+  var people: LinkedList<Person>;
+  var s = people.name;
+  var s = people.next.name;
+  var s = people.next.next.name;
+  var s = people.next.next.next.name;
+ ```
+
+###   接口别名
+
+在编译器中将鼠标悬停在 `interfaced`上，显示它返回的是 `Interface`，但悬停在 `aliased`上时，显示的却是对象字面量类型。
+
+```typescript
+type Alias = { num: number }
+interface Interface {
+    num: number;
+}
+declare function aliased(arg: Alias): Alias;
+declare function interfaced(arg: Interface): Interface;
+```
+
+**识别并过滤接口**
+
+```typescript
+interface Square {
+    kind: "square"; //标识
+    size: number;
+}
+interface Rectangle {
+    kind: "rectangle"; //标识
+    width: number;
+    height: number;
+}
+interface Circle {
+    kind: "circle"; //标识
+    radius: number;
+}
+
+type Shape = Square | Rectangle | Circle;  //重点
+
+//如果shape更新了，添加新的对象，而area没对应新的接口怎么办，
+//开启typescript严格模式。--strictNullChecks
+//或者添加一个default
+function area(s: Shape) {
+    switch (s.kind) {
+        case "square": return s.size * s.size;
+        case "rectangle": return s.height * s.width;
+        case "circle": return Math.PI * s.radius ** 2;
+        //折中检查是否有更新
+        default: return assertNever(s); // error here if there are missing cases
+    }
+}
+function assertNever(x: never): never {
+    throw new Error("Unexpected object: " + x);
+}
+```
+
+## keyof
+
+判断是否在 keyof  类型 的属性种
+
+```typescript
+let personProps: keyof Person;  
+
+//限制其name必须为obj的属性之一
+function add<T,U extends keyof T>(obj:T,name:U):T {
+    obj[name]='test';
+    return obj;
+}
+```
+
+### 映射类型--针对接口和类使用
+
+```typescript
+type Keys = 'option1' | 'option2';
+type Flags = { [K in Keys]: boolean };
+
+type Readonly<T> = {  //接受一个接口或者类，修改属性为全部只读。
+    readonly [P in keyof T]: T[P];
+}
+type Partial<T> = {
+    [P in keyof T]?: T[P];
+}
+
+instrface Parent {
+	[name: string]:number
+}
+instrface Son<T> {
+	[name: string]:number
 }
 ```
 
@@ -660,6 +977,10 @@ console.log(greeter2.greet());
 ```
 
 
+
+# 模块
+
+## 	导出模块
 
 
 
