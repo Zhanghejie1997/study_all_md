@@ -980,9 +980,357 @@ console.log(greeter2.greet());
 
 # 模块
 
-## 	导出模块
+## 			导出模块
 
+### es6的模块导入导出——使用结构赋值
 
+- #### import 导入（编译时加载）
+
+  - 写在头部，编译时候对其加载，不能写在if种无效
+
+- #### require 导入（运行时加载）
+
+- #### export 导出
+
+- #### as 重命名
+
+- ```typescript
+  //------------导出------------
+  class AddNumber{}
+  function getNuber(){}
+  function postNumber(){}
+  export function delectNumber(){}  //手动导出
+  //默认导出
+  export default AddNumber  //默认导出,一个文件最多一个
+  export default {getNuber,postNumber}  //默认导出,一个文件最多一个,导出是一个方法
+  
+  export {getNumber,postNumber as postArr}//统一导出为map格式 ，as 改名
+  
+  export * from './api' //可以在文件夹种多个导出，做到中间阶层功能
+  export {getNumber as numberArr} from './api'  //对api的getNumber重新改名导出，解决命名冲突问题
+  
+  //-------------导入-----------
+  import {AddNumber as Number} from './api'
+  let addNumber = new Number();
+  
+  import {getNumber} from './api'
+  let arr = getNumber();
+  
+  import * as fromName from './api'
+  let arr = fromName.getNumber()
+  let addNumberClass =new fromName.AddNumber()
+  
+  import ClassName from './api'  //默认导出defalut的值，如果导出是{}对象类型就需要ClassName.属性
+  let arrNumberClass  = new ClassName();
+  let getNumber  = ClassName.getNumber();
+  ```
+
+- 重新分类
+
+  ```typescript
+  //----------导出----------------
+  class Tree{};
+  function getNumber() {};
+  function postNumber() {};
+  export Tree;  //手动导出
+  export function delectNumber() {};  //手动导出
+  //规范点 就要吗都写，或者，最后导出
+  //export {fn,class}  //统一
+  
+  //----------导入---------------- 
+  //注意需要括号，没有括号是获取默认
+  import {Tree} from './api'  //不需要写js。需要结构赋值
+  import {getNumber,postNumber,delectNumber} from './api'  //不需要写js
+  let tree = new Tree();
+  let arr = gitNumber();
+  
+  //---------------默认导入导出-----------
+  //----------导出----------------
+  export default Tree; //默认导出  一个文件只能由一个
+  export {getNumber,postNumber}
+  //----------导入---------------- 
+  import ClassName from './api' //默认导出Tree，可以随便命名
+  import ClassName,{getNumber,postNumber} from './api' //默认导出Tree，可以随便命名
+  
+  
+  //------------------命名冲突----------------------
+  //----------导出----------------
+  export {getNumber,postNumber as newFnName,Tree} //改名字了
+  //----------导入---------------- 
+  import {getNumber as newName, newFnName as nowName,Tree} //再改名字
+  let tree = new Tree();
+  let arr = newName();
+  let arrList = nowName();
+  
+  //-----------------整个模块导出-------------------
+  //----------导出----------------
+  export  {fn1,fn2,fn3}
+  //----------导入---------------- 
+  import * as FnArr from './api' //重新命名模块名
+  let a = FnArr.fn1();
+  
+  
+  //------------------复写模块---------------------
+  export {Fn1 as newFn1} from './api'  //重命名
+  export * from './api' //整体输出///注意导入的模块不会有defalut
+  export {defalut} from './api' 设置使用api的默认接口
+  export {Fn as defalut} from './api' 把fn设置为默认接口
+  export { defalut as init} from './api' 把默认接口改成init
+  //es 2020提案 才有的默认导出并重命名  export * as NewName from './api'
+  
+  
+  
+  
+  //-------------------动态加载--------------------
+  //--------------导出-----------
+  if(status) {
+      import('./api1')
+  }else {
+      impoet('./api2')
+  }
+  ```
+
+- 使用运行时加载
+
+  - ### 为了支持CommonJS和AMD的`exports`, TypeScript提供了`export =`语法。
+
+  - 如果使用这个语法，`就必须使用import module = require("module")`来获取其模块
+
+- ```typescript
+  //-----------导出------------
+  class ClassName{}
+  export = ClassName;
+  //-----------导入------------
+  import Zip = require("./ZipCodeValidator"); //导入文件名
+  let className = new Zip();	
+  
+  //-----------导出------------
+  class ClassName{}
+  export = {ClassName,fn,fn};
+  //-----------导入------------
+  import Zip = require("./ZipCodeValidator"); //导入文件名
+  let className = new Zip.ClassName();	
+  let arr = Zip.fn();
+  ```
+
+  [更多模块及原理实现，解析之后的参考](https://www.tslang.cn/docs/handbook/modules.html)
+
+## 命名空间
+
+不常用了推荐使用模块
+
+# 声明文件——解决模块使用时候的ts编译检查问题
+
+推荐使用`.d.ts`文件来管理需要引用的模块命名和使用类型
+
+- `declare var` 声明全局变量
+- `declare function` 声明全局方法
+- `declare class `声明全局类
+- `declare enum `声明全局枚举类型
+- `declare namespace `声明（含有子属性的）全局对象
+- `interface `和 `type` 声明全局类型
+- `export` 导出变量
+- `export namespace `导出（含有子属性的）对象
+- `export default `ES6 默认导出
+- `export = commonjs `导出模块
+- `export as namespace` UMD 库声明全局变量
+- `declare global `扩展全局变量
+- `declare module `扩展模块
+- /// <reference /> 三斜线指令
+
+下例中，`declare var` 并没有真的定义一个变量，只是定义了全局变量 `jQuery` 的类型，仅仅会用于编译时的检查，在编译结果中会被删除。它编译结果是：
+
+```typescript
+declare var jQuery: (selector: string) => any;
+jQuery('#foo');
+//------结果------
+jQuery('#foo');
+```
+
+格式需要一个`jQuery.d.ts`文件
+
+```typescript
+// src/jQuery.d.ts
+
+declare var jQuery: (selector: string) => any;
+```
+
+使用哪里使用就哪里调用文件
+
+```
+// src/index.ts
+
+jQuery('#foo');
+```
+
+使用方法
+
+- 全局变量：通过 `<script>` 标签引入第三方库，注入全局变量
+- npm 包：通过 `import foo from 'foo'` 导入，符合 ES6 模块规范
+- UMD 库：既可以通过 `<script>` 标签引入，又可以通过 import 导入
+- 直接扩展全局变量：通过 `<script>` 标签引入后，改变一个全局变量的结构
+- 在 npm 包或 UMD 库中扩展全局变量：引用 npm 包或 UMD 库后，改变一个全局变量的结构
+- 模块插件：通过 `<script>` 或 `import` 导入后，改变另一个模块的结构
+
+```typescript
+// src/Animal.d.ts
+
+declare class Animal {
+    name: string;
+    constructor(name: string);
+    sayHi(): string;
+}
+
+// src/jQuery.d.ts
+//嵌套命名空间
+declare namespace jQuery {
+    function ajax(url: string, settings?: any): void;
+    namespace fn {
+        function extend(object: any): void;
+    }
+}
+```
+
+## 静态属性
+
+当存在一个类名和空间名一致的时候
+
+```typescript
+//函数定义必须再命名空间前面
+function addFn() {
+    console.log(addFn.num++);
+};
+namespace addFn() {
+    export let num = 0;
+};
+
+//枚举，有问题
+enum enumName {
+    red,
+    gree,
+}
+namespace enumName {
+    export const bule = 3;
+}
+ //生成出来的{0:'red',1:'gree','red':1,'gree':2,'bule':3}//就没有3:'bule'
+    
+    
+//类的声明
+class Tree {
+	constructor() {};
+	show() {};
+}
+namespace Tree {
+	export let arrLength:number = 2;
+	export const rule = /^0-9+$/;
+}
+//其中Tree就有两个静态属性读音arrLength
+//使用  Tree.arrLength   Tree.rule
+```
+
+# tsx
+
+# 装饰器——实验性特性
+
+## 配置启动
+
+你必须在命令行或`tsconfig.json`里启用`experimentalDecorators`编译器选项：
+
+`tsc --target ES5 --experimentalDecorators`或者
+
+```json
+//tsconfig.json文件夹
+{
+    "compilerOptions": {
+        "target": "ES5",
+        "experimentalDecorators": true
+    }
+}
+```
+
+## 为什么要用装饰器
+
+[什么是装饰器参考](http://zhanghejie.top/index.php/archives/26/)
+
+可能有些时候，我们会对传入参数的类型判断、对返回值的排序、过滤，对函数添加节流、防抖或其他的功能性代码，基于多个类的继承，各种各样的与函数逻辑本身无关的、重复性的代码。
+ 所以，对于装饰器，可以简单地理解为是非侵入式的行为修改。
+
+## 格式
+
+- 分装饰器函数和装饰器工厂，其对应需要是一个函数，或者返回一个函数再调用加一个@,,区别有参数和括号，其执行顺序为 先执行**装饰器工厂**   **从上到下**  再执行 **装饰器函数** **从下到上**，一个函数允许有多个装饰器.
+- 类装饰器不能用在声明文件中( `.d.ts`)，也不能用在任何外部上下文中（比如`declare`的类）。
+- 如果类装饰器返回一个值，它会使用提供的构造函数来替换类的声明。
+- 注意 如果你要返回一个新的**构造函数**，你必须注意处理好原来的**原型链**。 在运行时的装饰器调用逻辑中 *不会*为你做这些
+
+```typescript
+function showName(traget) { //装饰器函数
+}
+@showName
+function getName() {
+    
+}
+
+function showName(name) { //装饰器工厂 //才是真正装饰器
+   switdh(trage) {
+        case 'show':
+       		return function fn(traget) {
+            }
+    	defalut:
+       		return function fn1(traget) {}
+   }
+}
+@showName('show')
+function getName() {
+    
+}
+```
+
+## 区分：函数装饰器、类装饰器
+
+类装饰器其实，class是es6的语法糖，其实构成还是function，所以其装饰器的接收值还是function
+
+```typescript
+//类构造器，装饰器工厂
+function addAge(args:number) {
+    return function (target:function) {  //接收的就是这个class
+        target.constructor.age = args;
+    }
+}
+//固定使用constructor接收。 装饰器函数
+function addAgeFn(constructor:function) {
+	constructor.prototype.age = 18 ;
+}
+//装饰器工厂
+@addAge(123)  //修改了People的args
+//装饰器函数
+@addAgeFn
+class People {
+    name:string;
+    arg:number; 
+    constructor(name:string) {
+        this.name = name; 
+    }
+}
+
+//第一个参数
+//装饰器装饰的是静态成员函数，是类的构造函数()
+//装饰是实例的时候，装饰其类的原型对象(就是说是类的函数种使用就是指类的元素对象)
+//第二个参数
+//成员的名字，也就是使用它
+//第三个参数
+//是成员属性的描述符，configurable（可配置）、writeable（可写）、enumerable（可枚举）就是Object.defineProprty(obj,name,{})
+//如果函数有返回值，就会被替换掉本身的
+
+function addAge(){
+    return function method(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+   console.log(target);
+   console.log("prop " + propertyKey);
+   console.log("desc " + JSON.stringify(descriptor) + "\n\n");
+};
+    
+}
+//函数构造器
+```
 
 [参考文章](https://www.tslang.cn/docs/handbook/basic-types.html)
 
