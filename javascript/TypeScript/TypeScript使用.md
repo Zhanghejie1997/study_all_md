@@ -907,77 +907,6 @@ instrface Son<T> {
 
 
 
-# 高级类型
-
-
-
-
-
-
-
-
-
-# 测试例子
-
-```
- function findPeople(age:number,name?:string):string{
-      if(name){
-        return 'find the '+ age + 'years and name is'+ name;
-      }else{
-        return 'find the '+ age +'and no name!';
-      }
-    } function findMan(age:number):string{
-      return 'find the '+ age + 'years'
-    }
-    function findRest(age:number,...xuqiu:string[]):string{
-      let yy = "";
-      for(let i=0; i< xuqiu.length;i++){
-         yy = yy + xuqiu[i];
-         if(i < xuqiu.length -1){
-              yy = yy +'、'
-         }
-      }
-      return '需求有：'+yy;
-    }
-    function findRest(age:number,...xuqiu:string[]):string{
-      let yy = "";
-      for(let i=0; i< xuqiu.length;i++){
-         yy = yy + xuqiu[i];
-         if(i < xuqiu.length -1){
-              yy = yy +'、'
-         }
-      }
-      return '需求有：'+yy;
-    }
-```
-
-```
-class Greeter {
-    static standardGreeting = "Hello, there";
-    greeting: string;
-    greet() {
-        if (this.greeting) {
-            return "Hello, " + this.greeting;
-        }
-        else {
-            return Greeter.standardGreeting;
-        }
-    }
-}
-
-let greeter1: Greeter;
-greeter1 = new Greeter();
-console.log(greeter1.greet());
-
-let greeterMaker: typeof Greeter = Greeter;
-greeterMaker.standardGreeting = "Hey there!";
-
-let greeter2: Greeter = new greeterMaker();
-console.log(greeter2.greet());
-```
-
-
-
 # 模块
 
 ## 			导出模块
@@ -1347,9 +1276,13 @@ I am class decorator
 
 ### 1、类装饰器
 
+参数
+
+1. 对于实例成员是类的原型对象
+
 ```typescript
 //类构造器，装饰器工厂
-function addAge(args:number) {
+function addAge(args:number) {  //使用函数柯里化
     return function (target:function) {  //接收的就是这个class
         target.constructor.age = args;
     }
@@ -1501,15 +1434,34 @@ class Tree {
 }
 ```
 
+# mixin混入
 
+ 最后，我们创建一个辅助函数，它将为我们进行混合。这将遍历每个mixin的属性，并将它们复制到mixin的目标，并用其实现填充替代属性。把两个类合并的辅助函数：
 
+```typescript
+function applyMixins(derivedCtor: any, baseCtors: any[]) {
+    baseCtors.forEach(baseCtor => { //遍历接受的类
+        Object.getOwnPropertyNames(baseCtor.prototype).forEach(name => {  //把类的属性转换为数组，遍历
+            Object.defineProperty(derivedCtor.prototype, name, Object.getOwnPropertyDescriptor(baseCtor.prototype, name)); //对应添加到接口这个对象中，获取其本来属性的状态类型。
+        });
+    });
+}
+```
 
+执行
 
+```typescript
+class A {};
+class b {};
+interface C extends A,b {}
+applyMixins(C,[A,B])
+```
 
+# ///三斜线
 
+## `///<reference path="..." /> ` 
 
-
-
+该`/// `指令是该组中最常见的指令。它用作文件之间*依赖*关系的声明。
 
 
 
@@ -1518,3 +1470,75 @@ class Tree {
 [参考文章2](https://www.tslang.cn/docs/handbook/basic-types.html)
 
 [参考文章3](https://www.runoob.com/typescript/ts-type.html)
+
+
+
+
+
+
+
+
+
+
+
+
+
+# 测试例子
+
+```
+ function findPeople(age:number,name?:string):string{
+      if(name){
+        return 'find the '+ age + 'years and name is'+ name;
+      }else{
+        return 'find the '+ age +'and no name!';
+      }
+    } function findMan(age:number):string{
+      return 'find the '+ age + 'years'
+    }
+    function findRest(age:number,...xuqiu:string[]):string{
+      let yy = "";
+      for(let i=0; i< xuqiu.length;i++){
+         yy = yy + xuqiu[i];
+         if(i < xuqiu.length -1){
+              yy = yy +'、'
+         }
+      }
+      return '需求有：'+yy;
+    }
+    function findRest(age:number,...xuqiu:string[]):string{
+      let yy = "";
+      for(let i=0; i< xuqiu.length;i++){
+         yy = yy + xuqiu[i];
+         if(i < xuqiu.length -1){
+              yy = yy +'、'
+         }
+      }
+      return '需求有：'+yy;
+    }
+```
+
+```
+class Greeter {
+    static standardGreeting = "Hello, there";
+    greeting: string;
+    greet() {
+        if (this.greeting) {
+            return "Hello, " + this.greeting;
+        }
+        else {
+            return Greeter.standardGreeting;
+        }
+    }
+}
+
+let greeter1: Greeter;
+greeter1 = new Greeter();
+console.log(greeter1.greet());
+
+let greeterMaker: typeof Greeter = Greeter;
+greeterMaker.standardGreeting = "Hey there!";
+
+let greeter2: Greeter = new greeterMaker();
+console.log(greeter2.greet());
+```
+
