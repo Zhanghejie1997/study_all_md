@@ -1255,39 +1255,97 @@ namespace Tree {
 可能有些时候，我们会对传入参数的类型判断、对返回值的排序、过滤，对函数添加节流、防抖或其他的功能性代码，基于多个类的继承，各种各样的与函数逻辑本身无关的、重复性的代码。
  所以，对于装饰器，可以简单地理解为是非侵入式的行为修改。
 
+流程有点像现在这个class本身，添加一个新的class1，把class传入class1中报错，在需添加方法的地方（同名方法），先执行class1的class1调用class的，再执行本身写再class中的。
+
 ## 格式
 
-- 分装饰器函数和装饰器工厂，其对应需要是一个函数，或者返回一个函数再调用加一个@,,区别有参数和括号，其执行顺序为 先执行**装饰器工厂**   **从上到下**  再执行 **装饰器函数** **从下到上**，一个函数允许有多个装饰器.
+- 分装饰器函数和装饰器工厂，其对应需要是一个函数，或者返回一个函数再调用加一个@,,区别有参数和括号，其执行顺序为 先执行**装饰器工厂**   **从上到下**   得到装饰器函数 ，再执行 **装饰器函数** **从下到上**，一个函数允许有多个装饰器.
 - 类装饰器不能用在声明文件中( `.d.ts`)，也不能用在任何外部上下文中（比如`declare`的类）。
 - 如果类装饰器返回一个值，它会使用提供的构造函数来替换类的声明。
 - 注意 如果你要返回一个新的**构造函数**，你必须注意处理好原来的**原型链**。 在运行时的装饰器调用逻辑中 *不会*为你做这些
+- 在class中`get`和`set`针对同一个属性的时候只需要写一次
+
+## 加载器顺序
+
+### 例子
 
 ```typescript
-function showName(traget) { //装饰器函数
+function ClassDecorator() {
+    return function (target) {
+        console.log("I am class decorator");
+    }
 }
-@showName
-function getName() {
-    
+function MethodDecorator() {
+    return function (target, methodName: string, descriptor: PropertyDescriptor) {
+        console.log("I am method decorator");
+    }
+}
+function Param1Decorator() {
+    return function (target, methodName: string, paramIndex: number) {
+        console.log("I am parameter1 decorator");
+    }
+}
+function Param2Decorator() {
+    return function (target, methodName: string, paramIndex: number) {
+        console.log("I am parameter2 decorator");
+    }
+}
+function PropertyDecorator() {
+    return function (target, propertyName: string) {
+        console.log("I am property decorator");
+    }
 }
 
-function showName(name) { //装饰器工厂 //才是真正装饰器
-   switdh(trage) {
-        case 'show':
-       		return function fn(traget) {
-            }
-    	defalut:
-       		return function fn1(traget) {}
-   }
-}
-@showName('show')
-function getName() {
-    
+@ClassDecorator()  //第四
+class Hello {
+    @PropertyDecorator()  //第一个
+    greeting: string;
+
+
+    @MethodDecorator() //第三，其方法里面先执行
+    greet( @Param1Decorator() p1: string, @Param2Decorator() p2: string) { }  //先最后p2,p1
 }
 ```
 
-## 区分：函数装饰器、类装饰器
+### 结果
 
-类装饰器其实，class是es6的语法糖，其实构成还是function，所以其装饰器的接收值还是function
+```
+I am property decorator
+I am parameter2 decorator
+I am parameter1 decorator
+I am method decorator
+I am class decorator
+```
+
+### 总结
+
+1、有多个参数装饰器时：从最后一个参数依次向前执行
+
+2、方法和方法参数中参数装饰器先执行。
+
+3、类装饰器总是最后执行。
+
+4、方法和属性装饰器，谁在前面谁先执行。因为参数属于方法一部分，所以参数会一直紧紧挨着方法执行。上述例子中属性和方法调换位置。
+
+## 函数的参数
+
+类的装饰器参数
+
+1. function，他的初始化函数。constructor
+
+函数的装饰器参数
+
+1. 静态成员的类的构造函数或实例成员的类的原型。
+2. 成员的名称。
+3. 成员的*属性描述符*。
+
+## 区分：类，属性，访问器，方法以及方法参数，访问器装饰
+
+相同点：类装饰器其实，class是es6的语法糖，其实构成还是function，所以其装饰器的接收值还是function
+
+有默认参数 ，拿怎么接收参数呢——**函数柯里化**，也就是闭包，使用函数接收然后使用，并返回一个函数作为其使用方法。
+
+### 1、类装饰器
 
 ```typescript
 //类构造器，装饰器工厂
@@ -1311,7 +1369,40 @@ class People {
         this.name = name; 
     }
 }
+```
 
+
+
+```typescript
+//重写类继承。
+function classDecorator<T extends {new(...args:any[]):{}}>(constructor:T) {
+    return class extends constructor {
+        newProperty = "new property";
+        hello = "override";
+    }
+}
+
+@classDecorator
+class Greeter {
+    property = "property";
+    hello: string;
+    constructor(m: string) {
+        this.hello = m;
+    }
+}
+
+console.log(new Greeter("world"));
+```
+
+### 2、函数装饰器
+
+参数
+
+- 1、对于静态成员来说是类的构造函数，对于实例成员是类的原型对象。
+- 2、成员的名字。
+- 3、成员的属性描述符。
+
+```
 //第一个参数
 //装饰器装饰的是静态成员函数，是类的构造函数()
 //装饰是实例的时候，装饰其类的原型对象(就是说是类的函数种使用就是指类的元素对象)
@@ -1320,17 +1411,107 @@ class People {
 //第三个参数
 //是成员属性的描述符，configurable（可配置）、writeable（可写）、enumerable（可枚举）就是Object.defineProprty(obj,name,{})
 //如果函数有返回值，就会被替换掉本身的
+```
 
-function addAge(){
+
+
+```typescript
+function addAge(value:boolean){
     return function method(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+   console.log(value)//接收参数
    console.log(target);
    console.log("prop " + propertyKey);
    console.log("desc " + JSON.stringify(descriptor) + "\n\n");
-};
+	};
+}
+
+@addAge
+function fn(){
     
 }
-//函数构造器
+class Tree {
+    index:number;
+    constructor():void {}
+    @addAge
+    public function show():void {
+        
+    }
+}
 ```
+
+### 3、参数访问器
+
+参数
+
+- 1、对于静态成员来说是类的构造函数，对于实例成员是类的原型对象。
+- 2、参数的名字。
+- 3、参数在函数参数列表中的索引。 //跟上面不一样
+
+```typescript
+function PathParam(paramName: string) {
+    return function (target, methodName: string, paramIndex: number) {
+        !target.$Meta && (target.$Meta = {});  //不存在就生成一个，这里target就是这个HelloService
+        target.$Meta[paramIndex] = paramName;
+    }
+}
+
+class HelloService {
+    constructor() { }
+    getUser( @PathParam("userId") userId: string) { }
+}
+console.log((<any>HelloService).prototype.$Meta); // {'0':'userId'}
+```
+
+### 4、属性装饰器
+
+参数
+
+- 1、对于静态成员来说是类的构造函数，对于实例成员是类的原型对象。
+- 2、成员的名字。
+
+```typescript
+function DefaultValue(value: string) {
+    return function (target: any, propertyName: string) {
+        target[propertyName] = value;
+    }
+}
+
+class Hello {
+    @DefaultValue("world") greeting: string;
+}
+console.log(new Hello().greeting);// 输出: world
+```
+
+
+
+### 5、访问器装饰
+
+针对一个的get和set只要有要给
+
+```typescript
+class Tree {
+	length:number;
+    @addNumber(true)
+	get size() {
+		return this.length;
+	}
+	set size(value:number) {
+		this.length = size;
+	}
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+
 
 [参考文章](https://www.tslang.cn/docs/handbook/basic-types.html)
 
