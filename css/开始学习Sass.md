@@ -1,6 +1,23 @@
 # Sass的使用
 
-数据类型
+## 1、变量
+
+定义:`$变量名: 值;`支持值中包含变量名。对其使用`-`、`_`两个都识别，且能相互转化，就是说 `$d-d`等于 `$d_d`，且会被覆盖，多次赋值同一变量，会覆盖。 使用 ` !default` 跟在变量后面就作为默认值。如果没又值就使用默认，
+
+使用:`$变量名 [!default] = 值  ;`
+
+例子
+
+```scss
+$width-big-box:400px;
+$border-top:20px;
+$broder-box:$border-top  10px 10px 10px;
+body{
+	border:$border;
+}
+```
+
+### 数据类型
 
 - 数字，`1, 2, 13, 10px`
 - 字符串，有引号字符串与无引号字符串，`"foo", 'bar', baz`
@@ -32,24 +49,72 @@ body.firefox .header:before {
   content: "Hi, Firefox users!"; }
 ```
 
-## 1、变量
+### 运算符号
 
-定义:`$变量名: 值;`支持值中包含变量名。对其使用`-`、`_`两个都识别，且能相互转化，就是说 `$d-d`等于 `$d_d`，且会被覆盖，多次赋值同一变量，会覆盖。 使用 ` !default` 跟在变量后面就作为默认值。如果没又值就使用默认，
-
-使用:`$变量名 [!default] = 值  ;`
+- 所有数据类型均支持相等运算 `==` 或 `!=`，此外，每种数据类型也有其各自支持的运算方式。
+- 关系运算 `<, >, <=, >=` 也可用于数字运算，相等运算 `==, !=` 可用于所有数据类型。
+- (`+, -, *, /, %`)   `()` 圆括号优先运算
+  - 除法比较特别，以下三种情况 `/` 将被视为除法运算符号：
+    - 如果值，或值的一部分，是变量或者函数的返回值
+    - 如果值被圆括号包裹
+    - 如果值是算数表达式的一部分
+  - 加法
+    - 如果又一边是引号类型字符串则都是引号类型字符串
+- 布尔型 `and` `or` 以及 `not` 运算
+- 数组不支持任何运算方式，只能使用 [list functions](http://sass-lang.com/docs/yardoc/Sass/Script/Functions.html#list-functions) 控制。
 
 例子
 
 ```scss
-$width-big-box:400px;
-$border-top:20px;
-$broder-box:$border-top  10px 10px 10px;
-body{
-	border:$border;
+p {
+    font: 10px/8px;             // Plain CSS, no division 
+    font: 10px/8px + 0px; //才可以成功
+    $width: 1000px;
+    width: $width/2;            // Uses a variable, does division;
+    width: round(1.5)/2;        // Uses a function, does division;
+    height: (500px/2);          // Uses parentheses, does division;
+    margin-left: 5px + 8px/2px; // Uses +, does division;
+    color: #101010 + #101010 // 等于#202020  ，两位数两位数对应相加;
+    
+    color: rgba($color: #000000, $alpha: 1.0); //rgba包含两个数，必须alpha相同才可以相加;
+    
+	color: rbga(1,1,1,0.75) + rbga(1,1,1,0.75);
+    // opacify 或 transparentize 两个函数进行调整。;
+    $translucent-red: rgba(255, 0, 0, 0.5);
+    color: opacify($translucent-red, 0.3);  //叠加(255,0,0,0.8);
+ 	background-color: transparentize($translucent-red, 0.3); //相减(255,0,0,0.2);
+    
+    content: 'I am ${txt}' //动态添加内容 
 }
 ```
 
-  
+如果要强制其不为除号使用 `#{}`，并把它变成无引号状态
+
+```scss
+div {
+ 	$font-size: 12px;
+ 	 $line-height: 30px;
+  	font: #{$font-size}/#{$line-height};
+}
+//----其结果
+div {
+    font:30px/12px
+}
+
+
+$name:box;
+$bor:border;
+div.#{$name} {
+    #{$bor}:1px solid #000000;
+}
+//------结果
+div.box {
+    borer:1px solid #000000;
+}
+
+```
+
+
 
 ## 2、嵌套
 
@@ -58,6 +123,24 @@ body{
 但是又一个问题，伪类？
 
 引入`&`选择器，把父级引入，替换为父级节点
+
+& 为父节点，但是也是存在可以为null的情况,可以用`@if 布尔 {} @else {}`
+
+```scss
+@mixin does-parent-exist {
+  @if & {
+    &:hover {
+      color: red;
+    }
+  } @else {
+    a {
+      color: red;
+    }
+  }
+}
+```
+
+
 
 ### 节点嵌套
 
@@ -163,6 +246,10 @@ article {
 
 `@import '文件路径'`
 
+命名格式为 `_名字.scss`,导入则为 `名字.scss`  这样就不会编译scss成为css。 （使用webpack则不需要考虑这个问题）
+
+一般导入导出要区分函数和混合器，或者把其需要的内容进行封装，而不是像.box1一样直接放着。
+
 ```scss
 //文件夹a.scss
 .box1 {
@@ -171,6 +258,8 @@ article {
 		color:red;
 	}
 }
+@minxin fn() {}
+@function fn2() {}
 ```
 
 ```scss
@@ -200,18 +289,33 @@ body {
 
 ## 6、混合器——css的函数调用
 
-`@mixin`  定义  
+`@mixin`  定义    `@mixin 混合器名 [($变量)[:默认值] [,$变量[:默认值]] ] {}`
 他跟 `@font-face` `@media`很像但是不一样，对其是一个标识符
 
-`@include`  使用
+`@include`  使用  `@include 混合器名[([$接受参数名:]$传入变量名 [,[$接受参数名:]$传入参数名])] [{传入到@content中}]
+
+`@mixin` 可以用 `=` 表示，而 `@include` 可以用 `+`
+
+`@content`  选择其 `@include ` 之后的 {} 里面的内容
+
+
 
 格式就像定义变量一样
 
-`@mixin 混合器名 {}`  变量名
+- 无参数
 
-`@mixin 混合器名($name,$key:20px) {}`  变量名后面可以接受参数，实现类似于函数调用,设置默认值
+  `@mixin 混合器名 {}`  变量名
 
-`@include  混合器名` 使用
+  `@include  混合器名` 使用
+
+- 有参数
+
+  `@mixin 混合器名($name,$key:20px) {}`  变量名后面可以接受参数，实现类似于函数调用,设置默认值
+
+  `@include 混合器名(2,$key)`  传参 
+
+  //`完整形式 @include 混合器名( 接口变量 : 接受值,接口变量 : 接受值)`
+  `完整形式 @include 混合器名( $name: 'id', $key : $key)` //这里不会冲突，第一个`$key`是指定义混合器的时候接受的变量为key，第二`$key`是指当前使用的变量是。
 
 `@extend 继承元素名`  
 
@@ -268,4 +372,65 @@ div {
 	//div4
 }
 ```
+
+**`@mixin` 可以用 `=` 表示，而 `@include` 可以用 `+`**   （webpck不适合用)
+
+```
+=apply-to-ie6-only
+  * html
+    @content
+
++apply-to-ie6-only
+  #logo
+    background-image: url(/logo.gif)
+```
+
+## 函数@function
+
+格式
+
+定义一个函数，
+
+使用函数，就直接函数名，对其函数接收是选填的
+
+```scss
+@function 函数名字($接受变量) {
+	@return $变量 * 10 + px;
+}
+body {
+    font-size: 函数名字($接受变量: 3);
+}
+```
+
+## 内置函数
+
+- hsl
+
+  ```scss
+  hsl($hue $saturation $lightness)
+  hsl($hue $saturation $lightness / $alpha)
+  hsl($hue, $saturation, $lightness, $alpha: 1)
+  hsla($hue $saturation $lightness)
+  hsla($hue $saturation $lightness / $alpha)
+  hsla($hue, $saturation, $lightness, $alpha: 1) //=> color 
+  ```
+
+- rbg
+
+  ```scss
+  rgb($red $green $blue)
+  rgb($red $green $blue / $alpha)
+  rgb($red, $green, $blue, $alpha: 1)
+  rgb($color, $alpha)
+  rgba($red $green $blue)
+  rgba($red $green $blue / $alpha)
+  rgba($red, $green, $blue, $alpha: 1)
+  rgba($color, $alpha) //=> color 
+  ```
+
+
+
+区别
+
+@mixin和@function的区别
 
