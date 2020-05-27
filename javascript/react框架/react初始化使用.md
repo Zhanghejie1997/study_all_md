@@ -31,16 +31,155 @@ import {render} from 'react-dom'
 
 再使用html语句使用使用return(<div></div>) ,而在使用到对象属性的使用使用{this.property} (property为对应属性名),使用到父组件传递给子组件值的时候使用{this.props.property} (property为对应属性名)；
 
-## 组件
+# jsx
 
-#### 受控组件/非受控组件/半受控组件
+## 使用
+
+就像\`string \` 可以放字符串一样，还可以放变量使用 `{}`包裹  ，但是jsx不需要\`来包裹，且如果换行出现js自动补全分号的原因，所以使用 `()`  包裹起来。且可以使用嵌套。循环判断
+
+### 例子：
+
+```react
+return (
+	<div>
+		test_Jsx
+        {this.props.isShow?`<div>true</div>`:`<div>false</div>` } //嵌套
+        <div>{this.props.isShow?`true`:`false` } </div>
+        {this.props.arr.map(item=>{return (<div>item</div>)})} //循环
+        
+        //技巧
+        {this.props.isReader && <h1>title</h1>} //使用技巧，true的时候显示，flase不显示
+	</div>
+)
+```
+
+## 事件
+
+`onclick="function"` 点击事件
+
+```react
+function ActionLink() {
+  function handleClick(e) {
+    e.preventDefault();
+    console.log('链接被点击');
+  }
+ 
+  return (
+    //事件
+    <button onclick={handleClick}>
+        激活按钮
+    </button>
+    <a href="#" onClick={handleClick}>
+      点我
+    </a>
+  );
+}
+	
+//-----一般使用
+class Toggle extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {isToggleOn: true};
+ 
+    // 这边绑定是必要的，这样 `this` 才能在回调函数中使用
+    this.handleClick = this.handleClick.bind(this);
+  }
+ 
+  handleClick() {
+    this.setState(prevState => ({
+      isToggleOn: !prevState.isToggleOn
+    }));
+  }
+ 
+  render() {
+    return (
+      <button onClick={this.handleClick}>
+        {this.state.isToggleOn ? 'ON' : 'OFF'}
+      </button>
+    );
+  }
+}
+```
+
+# 判断
+
+使用函数判断来返回使用那个组件。
+
+```react
+function Greeting(props) {
+  const isLoggedIn = props.isLoggedIn;
+  if (isLoggedIn) {    
+      return <UserGreeting />;  
+  }  
+   return <GuestGreeting />;
+}
+ReactDOM.render(
+  // Try changing to isLoggedIn={true}:
+  <Greeting isLoggedIn={false} />,  
+    document.getElementById('root')
+);
+```
+
+甚至是是否显示
+
+```react
+function WarningBanner(props) {
+  if (!props.warn) {
+    return null;
+  }
+
+  return (
+    <div className="warning">
+      Warning!
+    </div>
+  );
+}
+
+class Page extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {showWarning: true};
+    this.handleToggleClick = this.handleToggleClick.bind(this);
+  }
+
+  handleToggleClick() {
+    this.setState(state => ({
+      showWarning: !state.showWarning
+    }));
+  }
+
+  render() {
+    return (
+      <div>
+        <WarningBanner warn={this.state.showWarning} />
+        <button onClick={this.handleToggleClick}>
+          {this.state.showWarning ? 'Hide' : 'Show'}
+        </button>
+      </div>
+    );
+  }
+}
+
+ReactDOM.render(
+  <Page />,
+  document.getElementById('root')
+);
+```
+
+
+
+
+
+# 组件
+
+## 受控组件/非受控组件/半受控组件
 
 1. 受控组件：由父组件传递给子组件的数据，由父组件修改。
 2. 非受控组件：自己有自己的状态属性，自己修改。
 
 3. 半受控组件：两者都有。
 
-#### 函数组件/类组件
+## 函数组件/类组件
 
 父组件调用
 
@@ -91,7 +230,7 @@ import {render} from 'react-dom'
 
 2. 类组件：
 
-   ```javascript
+   ```react
    import React,{Component} from 'react'
    class Child extends Component{
        constructor(){
@@ -114,14 +253,51 @@ import {render} from 'react-dom'
    }
    ```
 
+   ```react
+   class Clock extends React.Component {
+     constructor(props) {
+       super(props);
+       this.state = {date: new Date()};
+     }
+   
+     componentDidMount() {
+       this.timerID = setInterval(
+         () => this.tick(),
+         1000
+       );
+     }
+   
+     componentWillUnmount() {
+       clearInterval(this.timerID);
+     }
+   
+     tick() {
+       this.setState({
+         date: new Date()
+       });
+     }
+   
+     render() {
+       return (
+         <div>
+           <h1>Hello, world!</h1>
+           <h2>It is {this.state.date.toLocaleTimeString()}.</h2>
+         </div>
+       );
+     }
+   }
+   ```
+
+   
+
    1. 需要继承React.Component。
    2. 使用render(){ return ( )} 函数返回。
    3. 调用  函数/变量  加this。
    4. 传参的使用:this.props.父组件传递的变量名。
 
-# 问题
+## 问题
 
-​	1、延时处理导致的this指向问题？
+### 	1、延时处理导致的this指向问题？
 
 ​			由于触发时候当前组件消失，导致this指向问题的，由于react是单向数据流，可以使用闭包来解决问题。	
 
@@ -144,7 +320,7 @@ class ProfilePage extends React.Component {
 }
 ```
 
-2、为什么需要使用类，而不是使用函数，函数的接受成为天然的闭包存在。
+### 2、为什么需要使用类，而不是使用函数，函数的接受成为天然的闭包存在。
 
 ```javascript
 function ProfilePage({props}) {
@@ -280,3 +456,55 @@ class App extends React.Component{
 	}
 }
 ```
+
+## 验证器——prop-types插件来使用
+
+再类使用props接收的时候对其进行类型验证，
+
+使用`propTypes`静态对象接收
+
+```react
+static propTypes = {
+    propArr: PropTypes.arrayOf(
+      PropTypes.shape(
+        {
+          id: PropTypes.number.isRequired,
+          title: PropTypes.string.isRequired,
+          isCompleted: PropTypes.bool.isRequired
+        }
+      ).isRequired
+    )react
+  }
+propTypes = {
+     optionalArray: PropTypes.array,//检测数组类型
+     optionalBool: PropTypes.bool,//检测布尔类型
+     optionalFunc: PropTypes.func,//检测函数（Function类型）
+     optionalNumber: PropTypes.number,//检测数字
+     optionalObject: PropTypes.object,//检测对象
+     optionalString: PropTypes.string,//检测字符串
+     optionalSymbol: PropTypes.symbol,//ES6新增的symbol类型
+}
+```
+
+
+
+## 获取真实dom节点 ref
+
+跟vue的ref一样。
+
+```react
+var MyComponent = React.createClass({
+  handleClick: function() {
+    this.refs.myTextInput.focus();  //获取return的ref
+  },
+  render: function() {
+    return (react
+      <div>
+        <input type="text" ref="myTextInput" /> //指定ref
+        <input type="button" value="Focus the text input" onClick={this.handleClick} />
+      </div>
+    );
+  }
+});
+```
+
