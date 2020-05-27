@@ -99,6 +99,8 @@ Destory
 
 #### $el //这个vue组件的dom对象	
 
+#### $refs 用来访问真实的DOM对象实例
+
 #### $parent //父实例，如果当前实例有的话。
 
 #### $root //当前组件树的根 Vue 实例。如果当前实例没有父实例，此实例将会是其自己。
@@ -107,7 +109,7 @@ Destory
 
 #### $slots  用来访问被[插槽分发](https://cn.vuejs.org/v2/guide/components.html#通过插槽分发内容)的内容。每个[具名插槽](https://cn.vuejs.org/v2/guide/components-slots.html#具名插槽)有其相应的 property (例如：`v-slot:foo` 中的内容将会在 `vm.$slots.foo` 中被找到)。`default` property 包括了所有没有被包含在具名插槽中的节点，或 `v-slot:default` 的内容。
 
-#### $refs 用来访问真实的DOM对象实例
+#### 
 
 ## 存在混入mixin的情况下
 
