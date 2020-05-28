@@ -508,3 +508,154 @@ var MyComponent = React.createClass({
 });
 ```
 
+## 生命周期
+
+**componentDidMount()** 与 **componentWillUnmount()** 方法被称作生命周期钩子。
+
+```
+class Clock extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {date: new Date()};
+  }
+ 
+  componentDidMount() {
+    this.timerID = setInterval(
+      () => this.tick(),
+      1000
+    );
+  }
+ 
+  componentWillUnmount() {
+    clearInterval(this.timerID);
+  }
+ 
+  tick() {
+    this.setState({
+      date: new Date()
+    });
+  }
+ 
+  render() {
+    return (
+      <div>
+        <h1>Hello, world!</h1>
+        <h2>现在是 {this.state.date.toLocaleTimeString()}.</h2>
+      </div>
+    );
+  }
+}
+ 
+ReactDOM.render(
+  <Clock />,
+  document.getElementById('example')
+);
+```
+
+**代码执行顺序：**
+
+1. 当 `` 被传递给 `ReactDOM.render()` 时，React 调用 `Clock` 组件的构造函数。 由于 `Clock` 需要显示当前时间，所以使用包含当前时间的对象来初始化 `this.state` 。 我们稍后会更新此状态。
+2. React 然后调用 `Clock` 组件的 `render()` 方法。这是 React 了解屏幕上应该显示什么内容，然后 React 更新 DOM 以匹配 `Clock` 的渲染输出。
+3. 当 `Clock` 的输出插入到 DOM 中时，React 调用 `componentDidMount()` 生命周期钩子。 在其中，`Clock` 组件要求浏览器设置一个定时器，每秒钟调用一次 `tick()`。
+4. 浏览器每秒钟调用 `tick()` 方法。 在其中，`Clock` 组件通过使用包含当前时间的对象调用 `setState()` 来调度UI更新。 通过调用 `setState()` ，React 知道状态已经改变，并再次调用 `render()` 方法来确定屏幕上应当显示什么。 这一次，`render()` 方法中的 `this.state.date` 将不同，所以渲染输出将包含更新的时间，并相应地更新 DOM。
+5. 一旦 `Clock` 组件被从 DOM 中移除，React 会调用 `componentWillUnmount()` 这个钩子函数，定时器也就会被清除。
+
+## react
+
+组件API
+
+- 设置状态：setState
+
+  - ```
+    setState(object nextState[, function callback])
+    ```
+
+    ```
+    class Counter extends React.Component{
+      constructor(props) {
+          super(props);
+          this.state = {clickCount: 0};
+          this.handleClick = this.handleClick.bind(this);
+      }
+      
+      handleClick() {
+        this.setState(function(state) {
+          return {clickCount: state.clickCount + 1};
+        });
+      }
+      render () {
+        return (<h2 onClick={this.handleClick}>点我！点击次数为: {this.state.clickCount}</h2>);
+      }
+    }
+    ReactDOM.render(
+      <Counter />,
+      document.getElementById('example')
+    );
+    ```
+
+    
+
+- 替换状态：replaceState
+
+  - ```
+    replaceState(object nextState[, function callback])
+    ```
+
+    - **nextState**，将要设置的新状态，该状态会替换当前的**state**。
+    - **callback**，可选参数，回调函数。该函数会在**replaceState**设置成功，且组件重新渲染后调用。
+
+    **replaceState()**方法与**setState()**类似，但是方法只会保留**nextState**中状态，原**state**不在**nextState**中的状态都会被删除。
+
+- 设置属性：setProps
+
+  - ```
+    setProps(object nextProps[, function callback])
+    ```
+
+    - **nextProps**，将要设置的新属性，该状态会和当前的**props**合并
+    - **callback**，可选参数，回调函数。该函数会在**setProps**设置成功，且组件重新渲染后调用。
+
+- 替换属性：replaceProps
+
+  - ```
+    replaceProps(object nextProps[, function callback])
+    ```
+
+    - **nextProps**，将要设置的新属性，该属性会替换当前的**props**。
+    - **callback**，可选参数，回调函数。该函数会在**replaceProps**设置成功，且组件重新渲染后调用。
+
+    **replaceProps()**方法与**setProps**类似，但它会删除原有 props。
+
+- 强制更新：forceUpdate
+
+  - ```
+    forceUpdate([function callback])
+    ```
+
+    ### 参数说明
+
+    - **callback**，可选参数，回调函数。该函数会在组件**render()**方法调用后调用。
+
+    forceUpdate()方法会使组件调用自身的render()方法重新渲染组件，组件的子组件也会调用自己的render()。但是，组件重新渲染时，依然会读取this.props和this.state，如果状态没有改变，那么React只会更新DOM。
+
+    forceUpdate()方法适用于this.props和this.state之外的组件重绘（如：修改了this.state后），通过该方法通知React需要调用render()
+
+    一般来说，应该尽量避免使用forceUpdate()，而仅从this.props和this.state中读取状态并由React触发render()调用。
+
+- 获取DOM节点：findDOMNode
+
+  - ```
+    DOMElement findDOMNode()
+    ```
+
+    - 返回值：DOM元素DOMElement
+
+    如果组件已经挂载到DOM中，该方法返回对应的本地浏览器 DOM 元素。当**render**返回**null** 或 **false**时，**this.findDOMNode()**也会返回**null**。从DOM 中读取值的时候，该方法很有用，如：获取表单字段的值和做一些 DOM 操作。
+
+- 判断组件挂载状态：isMounted
+
+  - ```
+    bool isMounted()
+    ```
+
+    - 返回值：**true**或**false**，表示组件是否已挂载到DOM中
