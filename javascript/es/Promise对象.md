@@ -20,8 +20,8 @@ let promise = new Promise((resolve, reject) => {
     // reject();
     resolve();
   }).then(
-    res=>{console.log('res1');return 'res'}, //执行下面then的方法
-    err=>{console.log('err1');reject()},
+    res=>{console.log('res1');return 'res'}, //执行下面then的第一个方法
+    err=>{console.log('err1');reject()},    //执行下面的then的第二个方法
   ).then(
     res=>{console.log('res2');return 'res'},
     err=>{console.log('err2');reject()},
