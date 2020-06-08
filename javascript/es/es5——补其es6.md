@@ -173,6 +173,7 @@ var result = JSON.parse('{"a": 1, "b": "2"}', function(key, value){
       writable : true      // 属性值可修改
       enumerable : true    // 属性可枚举
       configurable : true  // 属性可重新配置
+      
       writable : false     // 属性值不可修改
       enumerable : false   // 属性不可枚举
       configurable : false // 属性不可重新配置
