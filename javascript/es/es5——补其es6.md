@@ -342,6 +342,8 @@ var result = JSON.parse('{"a": 1, "b": "2"}', function(key, value){
 
 - `Array.isArray(arr)` 判断arr是否为数组
 
+- `Array.prototype.join(str)` 输出字符串arr并添加str
+
   **增删除**
 
 - `Array.prototype.push(item)`   添加到数组尾巴
