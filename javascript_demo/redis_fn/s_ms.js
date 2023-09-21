@@ -14,7 +14,15 @@ function run_accelerate(init_fn) {
 }
 
 //----------------------------------------------------------------------------------------
+function factorial(n){
+    var count = 1
+    while (n){
+        count *= n--
+    }
+    return count
+}
 
+console.log('factorial(n)',factorial(6),6*5*4*3*2*1)
 function test_fn() {
 
     var test_1 = function () {
