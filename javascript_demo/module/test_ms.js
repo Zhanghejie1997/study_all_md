@@ -12,23 +12,17 @@ var log = {
 
 //----------------------------------------------------------------------------------------
 var async = {
-    waterfall: (tasks, callback) => {
-        var task_index = 0;
-        function next() {
-            var args = [].slice.call(arguments)
-            if (task_index == tasks.length || args[0]) {
-                return callback.apply(this, args)
+    waterfall: (tasks, cb) => {
+        var index = 0, fn = function() {
+            if (arguments[0] || ++index >= tasks.length) {
+                return cb.apply(null, arguments)
             }
-
-            args = args.slice(1), args.push(next)
-            try {
-                tasks[task_index++].apply(this, args)
-            } catch (err) {
-                return callback(err)
-            }
+            var args = Array.prototype.slice.call(arguments, 1)
+            args.push(fn)
+            tasks[index].apply(null, args)
         }
 
-        next()
+        tasks[index] ? tasks[index](fn) : cb()
     }
 }
 //----------------------------------------------------------------------------------------

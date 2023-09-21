@@ -4,7 +4,6 @@
 
 
 //----------------------------------------------------------------------------------------
-typeof ms === 'undefined' ? require('../module/test_ms') : null
 var info = ms.log.info
 var error = ms.log.error
 /**
@@ -23,6 +22,9 @@ var config = {
 
 //----------------------------------------------------------------------------------------
 var check_fn_all = {
+    err        : (val, cb, option) => cb('err not config,' + JSON.stringify(option.item)),
+    ''         : (val, cb) => cb(null, val),
+    not_check  : (val, cb) => cb(null, val),
     is_null    : (val, cb, option) => cb([null, undefined, ''].indexOf(val) > -1 ? option.item.tip || (option.item.field + ' is is null') : null, val),
     is_not_null: (val, cb, option) => cb([null, undefined, ''].indexOf(val) == -1 ? option.item.tip || (option.item.field + ' is is not null') : null, val),
     page       : (val, cb, option) => {
@@ -31,23 +33,29 @@ var check_fn_all = {
     },
     def        : (val, cb, option) => cb(null, option.item.def || option.item.default),
     default    : (val, cb, option) => cb(null, option.item.def || option.item.default),
+
 }
 
 //----------------------------------------------------------------------------------------
 function get_save_fn(save_str) {
     var save_arr = (save_str || '').split('.')
     var save_filed = save_arr.pop()
-    return (save_data, line, val) => {
+    return function (save_data, line, val) {
         save_arr.forEach(i => save_data = save_data[i] || (save_data[i] = {}))
         save_data[save_filed || line] = val
     }
 }
 
+function def_save_fn(save_data, field, save_val, item) {
+    save_data[field] = save_val
+}
+
 function init_line(line) {
     return line.map(i => {
-        i.check_fn = i.check_fn ||check_fn_all[i.type]
-        !i.check_fn || error('err not type:', i.type, line)
-        i.save_fn = i.save_fn || (i.save_data ? get_save_fn(i.save_data) : null)
+        i.check_fn = i.check_fn || check_fn_all[i.type]
+        i.check_fn || error('err not type:', i.type, line)
+        i.check_fn = i.check_fn || check_fn_all.err
+        i.save_fn = i.save_fn || (i.save_data ? get_save_fn(i.save_data) : def_save_fn)
         return i
     })
 }
@@ -55,49 +63,28 @@ function init_line(line) {
 //----------------------------------------------------------------------------------------
 function check_data_init(config) {
     var line = init_line(config.line)
-    var max_length = line.length
     return (body, callback) => {
-        var index = 0, save_data = {}
-        var fn = () => {
+        var index = 0, save_data = {}, fn = function () {
             var item = line[index] || {}
-            var field = item.field
-            item.check_fn(body[field], (err, save_val) => {
-                err || (item.save_fn ? item.save_fn(save_data, field, save_val, item) : save_data[field] = save_val)
-                err || ++index >= max_length ? callback(err, save_data) : fn()
+            var field = item.field, check_fn = item.check_fn, save_fn = item.save_fn
+            check_fn(body[field], (err, save_val) => {
+                err || save_fn(save_data, field, save_val, item)
+                err || ++index >= line.length ? callback(err, save_data) : fn()
             }, {item, body})
         }
         fn()
     }
 }
-//----------------------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------------------
-
-exports.check_data_init = (config)=>check_data_init(<option value=""></option>)
-//----------------------------------------------------------------------------------------
-function test() {
-    var fn = check_data_init({
-        line: [{
-            field  : 'field', check_fn: (val, cb, item) => {
-                var err = ''
-                cb(err, val)
-            }, type: '', save_data: '', save_fn: (save_data, field, val, item) => {
-                save_data[field] = val
-            }, tip : 'err',
-        }, {field: 'a', check_fn: (val, cb) => cb('', val)},
-            {field: 'b', check_fn: (val, cb) => cb('', val), save_data: 'b.b.c'},
-            {field: 'b', check_fn: (val, cb) => cb('', val), save_data: 'b.b.'},
-            {field: 'c', check_fn: (val, cb) => cb('', val), save_data: 'c.'},
-            {field: 'd', check_fn: (val, cb) => cb('', val), save_data: 'd'},
-            {field: 'e', check_fn: (val, cb) => cb('', val), save_data: '.'},
-            {field: 'page', type: 'page'},
-
-        ],
-    })
-    fn({field: 'field', a: 1, b: 2, c: 3, d: 4, e: 5, page: {index: 4}}, (err, check_data) => {
-        console.log('err', err, ',check:', check_data)
-    })
+function check_array(arr) {
+    return (val, cb, option) => {
+        cb(arr.indexOf(val) > -1 ? null : (option.item.tip || option.item.field + ' not in arr'), val)
+    }
 }
 
-test()
 //----------------------------------------------------------------------------------------
+
+exports.check_data_init = (config) => check_data_init(config)
+exports.check_fn_all = check_fn_all
+exports.check_array = arr => check_array(arr)
