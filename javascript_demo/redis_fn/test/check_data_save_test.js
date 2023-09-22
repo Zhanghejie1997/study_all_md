@@ -5,8 +5,8 @@
  */
 
 //----------------------------------------------------------------------------------------
-require('../module/test_ms')
-var fn = require('./check_data_save')
+require('../../module/test_ms')
+var fn = require('../check_data_save')
 var check_data_init = fn.check_data_init
 var check_array = fn.check_array
 var check_fn_all = fn.check_fn_all
