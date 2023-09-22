@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/../../sites/agreement.shangyoo.com/.idea/agreement.shangyoo.com.iml" filepath="$PROJECT_DIR$/../../sites/agreement.shangyoo.com/.idea/agreement.shangyoo.com.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../../../syyx_conf/.idea/syyx_conf.iml" filepath="$PROJECT_DIR$/../../../../syyx_conf/.idea/syyx_conf.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/xuanli_pf.iml" filepath="$PROJECT_DIR$/.idea/xuanli_pf.iml" />
+    </modules>
+  </component>
+</project>

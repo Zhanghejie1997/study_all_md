@@ -1,0 +1,1 @@
+exports.last_id_sql = ";SELECT LAST_INSERT_ID() as last_id;"

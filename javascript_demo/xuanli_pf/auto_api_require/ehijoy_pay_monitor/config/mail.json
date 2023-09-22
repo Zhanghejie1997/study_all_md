@@ -1,0 +1,12 @@
+{
+  "smtpOptions" : {
+    "host" : "smtp.syyx.com",
+    "port" : 25,
+    "auth" : {
+      "user" : "linli@syyx.com",
+      "pass" : "2$D@2x1!$vdhjd"
+    }
+  },
+  "from": "栗子（林立）<linli@syyx.com>",
+  "to": "592473307@qq.com, 516874842@qq.com"
+}
