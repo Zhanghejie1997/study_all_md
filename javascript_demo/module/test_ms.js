@@ -32,6 +32,42 @@ var db = function init_db() {
 
     return {mysql, redis}
 }()
+
+//----------------------------------------------------------------------------------------
+
+//----------------------------------------------------------------------------------------
+
+function proxy(fn) {
+    var obj = {
+        fn, success: [], err: [], success_index: 0,err_index:0
+    }
+    var err_fn=function (){
+        if(obj.err_index){
+            var fn = obj.err[obj.err_index++]
+            fn && fn(err_fn, obj.err[0])
+        }
+    }
+    var success_fn = function () {
+        if(obj.err_index){
+            var fn = obj.success[obj.success_index++]
+            fn && fn(success_fn, obj.err[0])
+        }
+    }
+    setTimeout(function () {
+        fn(success_fn, obj.err[0])
+    }, 2)
+    return {
+        then(fn) {
+            obj.success.push(fn)
+            return this
+        },
+        catch(fn){
+            obj.err.push(fn)
+            return this
+        }
+    }
+}
+
 //----------------------------------------------------------------------------------------
 var async = {
     waterfall: (tasks, cb) => {
@@ -51,4 +87,4 @@ var async = {
 
 //----------------------------------------------------------------------------------------
 
-global.ms = {log, async, db}
+global.ms = {log, async, db, proxy}

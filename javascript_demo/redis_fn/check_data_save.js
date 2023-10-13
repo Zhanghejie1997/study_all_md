@@ -1,8 +1,6 @@
 /*
  * Copyright (c) 2023.
  */
-
-
 //----------------------------------------------------------------------------------------
 var info = ms.log.info
 var error = ms.log.error
@@ -45,10 +43,11 @@ function get_save_fn(save_str) {
         save_data[save_filed || line] = val
     }
 }
-
+//----------------------------------------------------------------------------------------
 function def_save_fn(save_data, field, save_val, item) {
     save_data[field] = save_val
 }
+//----------------------------------------------------------------------------------------
 
 function init_line(line) {
     return line.map(i => {

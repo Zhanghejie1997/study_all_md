@@ -37,8 +37,7 @@ function limit_init(option) {
         var lock = true, an_lock = function () {
             if (lock) {
                 time && clearTimeout(time)
-                lock = null, time = null
-                _option.index--
+                lock = null, time = null, _option.index--
                 callback.apply(this, arguments)
             }
         }

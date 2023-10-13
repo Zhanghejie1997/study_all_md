@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://E:/jquery-main/.idea/jquery-main.iml" filepath="E:/jquery-main/.idea/jquery-main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/study_all_md.iml" filepath="$PROJECT_DIR$/.idea/study_all_md.iml" />
     </modules>
   </component>

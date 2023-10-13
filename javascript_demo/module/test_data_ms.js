@@ -46,4 +46,25 @@ function test() {
     })
 }
 
-test()
+// test()
+
+
+
+
+function proxy_test(){
+    ms.proxy(function (rev, res){
+        console.log('ddd',rev,res)
+        rev('ok')
+    }).then(function (data){
+        console.log('then,',data)
+    }).catch(function (err){
+        console.log('err,',err)
+    })
+
+}
+
+proxy_test()
+
+// 配置不能混用
+// import {showHide} from './impoer_test.js'
+// console.log(showHide)
