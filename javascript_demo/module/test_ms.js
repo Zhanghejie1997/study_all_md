@@ -57,11 +57,11 @@ function proxy(fn) {
         fn(success_fn, obj.err[0])
     }, 2)
     return {
-        then(fn) {
+        then:(fn) =>{
             obj.success.push(fn)
             return this
         },
-        catch(fn){
+        catch:(fn)=>{
             obj.err.push(fn)
             return this
         }
